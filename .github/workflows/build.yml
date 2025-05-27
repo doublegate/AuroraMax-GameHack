@@ -125,6 +125,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Image to GHCR
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/auroramax-gamehack:latest
+
       - name: Setup Cosign
         run: |
           echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > cosign.key
