@@ -32,6 +32,7 @@ jobs:
         with:
           recipe: ${{ matrix.recipe }}
           cosign_private_key: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          cosign_password: ${{ secrets.COSIGN_PASSWORD }}
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
           
