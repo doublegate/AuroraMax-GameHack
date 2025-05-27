@@ -1,0 +1,40 @@
+name: BlueBuild
+on:
+  schedule:
+    - cron: "0 7 * * *"  # 7 AM UTC everyday
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  bluebuild:
+    name: Build Custom Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - recipe.yml
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Custom Image
+        uses: blue-build/github-action@v1.6
+        with:
+          recipe: ${{ matrix.recipe }}
+          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          registry_token: ${{ github.token }}
+          pr_event_number: ${{ github.event.number }}
+          
+          # Optional: Uncomment to use GHCR instead of Docker Hub
+          # registry: ghcr.io
+          # registry_namespace: ${{ github.repository_owner }}

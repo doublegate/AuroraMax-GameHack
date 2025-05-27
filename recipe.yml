@@ -1,0 +1,66 @@
+# AuroraMax GameHack Blue Build Recipe
+# This is an alternative to using the Containerfile directly
+# Blue Build provides a simpler, declarative way to create custom images
+
+name: auroramax-gamehack
+description: Gaming-focused Universal Blue custom image based on Aurora
+base-image: ghcr.io/ublue-os/aurora-main
+image-version: 41
+
+modules:
+  - type: rpm-ostree
+    repos:
+      # Additional repositories can be added here if needed
+    install:
+      # Gaming packages
+      - gamescope
+      - gamescope-session
+      - mangohud
+      - vkBasalt
+      - gamemode
+      - steam-devices
+      - joystickwake
+      - antimicrox
+      
+      # Additional gaming tools
+      - lutris
+      - bottles
+      
+      # Performance monitoring
+      - corectrl
+      
+      # Input device management
+      - piper
+      
+    remove:
+      # Remove any unwanted packages here
+      # - firefox  # Example: if you want to use a different browser
+
+  - type: default-flatpaks
+    notify: true
+    system:
+      install:
+        # Gaming-related Flatpaks
+        - com.valvesoftware.Steam
+        - com.heroicgameslauncher.hgl
+        - net.davidotek.pupgui2
+        - com.github.Matoking.protontricks
+        - io.github.benjamimgois.goverlay
+
+  - type: services
+    system:
+      enabled:
+        - gamemoded.service
+
+  - type: files
+    files:
+      - usr: /usr
+        # Custom files go here, structured like:
+        # - usr/share/applications/custom.desktop
+
+  - type: bling
+    install:
+      - 1password  # Optional: remove if not needed
+
+  - type: signing
+    # This module signs your image with your cosign key

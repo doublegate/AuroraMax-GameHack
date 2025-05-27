@@ -1,0 +1,17 @@
+# Cosign private key
+cosign.key
+
+# Build artifacts
+*.tar
+*.tar.gz
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
