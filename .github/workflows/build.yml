@@ -125,6 +125,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Image to GHCR
+- name: Setup Cosign
+        run: |
+          echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > cosign.key
+          chmod 600 cosign.key
+
+      - name: Sign the image with Cosign
+        run: |
+          cosign sign --key cosign.key ghcr.io/${{ github.repository_owner }}/auroramax-gamehack:latest
         uses: redhat-actions/push-to-registry@v2
         id: push
         with:

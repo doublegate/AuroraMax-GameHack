@@ -31,7 +31,7 @@ jobs:
         uses: blue-build/github-action@v1.6
         with:
           recipe: ${{ matrix.recipe }}
-          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          cosign_private_key: ${{ secrets.COSIGN_PRIVATE_KEY }}
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
           
