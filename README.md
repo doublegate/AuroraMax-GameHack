@@ -69,10 +69,10 @@ Currently implementing the **Init-General-Minimal** variant as the foundation.
 
 ```bash
 # For verified images (recommended)
-rpm-ostree rebase ostree-image-signed:docker://ghcr.io/YOUR_GITHUB_USERNAME/auroramax-gamehack:latest
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/doublegate/auroramax-gamehack:latest
 
 # For testing/development
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/YOUR_GITHUB_USERNAME/auroramax-gamehack:latest
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/doublegate/auroramax-gamehack:latest
 ```
 
 ### Method 2: Fresh Installation
@@ -238,5 +238,3 @@ Built on top of:
 This project follows the same licensing as Universal Blue and Fedora.
 
 ---
-
-**Note**: Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username in the installation commands.
