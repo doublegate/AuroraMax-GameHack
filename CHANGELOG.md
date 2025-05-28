@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - 2025-01-28
 
+### Changed
+- **Major Project Restructure**: Transitioned from simple gaming-focused image to comprehensive multi-variant distribution
+- **File Organization**: Moved from flat `files/` structure to organized `common-files/` and `variants/` structure
+- **Build System**: Preparing for phased development with Init variants → Synthesis → LLM refinement → Release Candidate
+
+### Added (Phase 1 - Init-General-Minimal)
+- **Common Files Structure**:
+  - System configurations: sysctl, udev rules, kernel parameters
+  - Performance optimizations: BORE scheduler, MGLRU, Kyber I/O
+  - Network tuning: TCP BBR, increased buffer sizes
+  - User environment: skeleton files, bash aliases
+  - Systemd services: firstboot, performance tuning
+- **Modular Justfiles**:
+  - Base system management commands
+  - Performance tuning utilities
+  - Hardware configuration tools
+- **Directory Creation Script**: Automated setup for project structure
+
+### Removed
+- Old flat file structure under `files/`
+- Gaming-specific sysctl configuration (moved to common-files with broader scope)
+- Monolithic justfiles (replaced with modular approach)
+
+## [0.1.0] - 2025-01-28
+
 ### Added
 - **Multi-stage Containerfile**: Complete rewrite using sophisticated multi-stage build approach for better caching and modularity
 - **BlueBuild Modules System**: Migrated to modular build approach with dedicated modules for:

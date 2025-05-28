@@ -1,6 +1,16 @@
 # AuroraMax-GameHack
 
-A custom Universal Blue image based on Aurora, specifically optimized for gaming performance and hardware compatibility. This immutable desktop operating system provides a rock-solid gaming platform with the latest optimizations and tools.
+An ambitious Universal Blue-based Linux distribution built on Fedora Kinoite (KDE Plasma) that delivers the ultimate all-in-one powerhouse OS for gaming, development, AI/ML, and security research. This immutable desktop operating system provides a rock-solid platform with aggressive performance optimizations, comprehensive toolsets, and an innovative phased development approach.
+
+## 🚀 Project Vision
+
+AuroraMax GameHack combines:
+- **Gaming Excellence**: Steam, Lutris, emulation, and performance optimizations
+- **Development Power**: Comprehensive toolchains, containers, and cloud tools
+- **AI/ML Capabilities**: PyTorch, TensorFlow, and CUDA support
+- **Security Arsenal**: Penetration testing, forensics, and offensive/defensive tools
+- **Immutable Architecture**: Atomic updates with easy rollbacks via rpm-ostree
+- **Performance First**: BORE scheduler, MGLRU, Kyber I/O, and aggressive optimizations
 
 ## 🎮 Key Features
 
@@ -26,6 +36,32 @@ A custom Universal Blue image based on Aurora, specifically optimized for gaming
 - **KDE Plasma**: Feature-rich desktop with excellent gaming integration
 - **Wayland/X11**: Support for both display protocols
 - **Flatpak**: Sandboxed applications with the latest versions
+- **Dark Aurora Theme**: Cohesive dark aesthetic across the system
+
+### Development Environment
+- **Languages**: C/C++, Rust, Python, Go, Java, Node.js
+- **IDEs**: VS Code (Codium) with DevContainer support
+- **Container Tools**: Podman, Docker CLI, Kubernetes
+- **Cloud SDKs**: AWS, GCP, Azure
+- **Build Systems**: CMake, Meson, Ninja
+
+### Security Tools
+- **Network**: Nmap, Wireshark, Masscan
+- **Web**: Burp Suite, OWASP ZAP, Nikto
+- **Exploitation**: Metasploit, sqlmap
+- **Wireless**: Aircrack-ng, Reaver
+- **Forensics**: Autopsy, Volatility
+
+## 🔧 Development Approach
+
+AuroraMax follows a sophisticated 4-phase iterative development process:
+
+1. **Phase 1: Seven Init Variants** - Specialized variants exploring different philosophies
+2. **Phase 2: Synthesis I** - Merge best features into SemiFinal variant
+3. **Phase 3: LLM Refinement** - AI-driven analysis and enhancement
+4. **Phase 4: Release Candidate** - Final synthesis and optimization
+
+Currently implementing the **Init-General-Minimal** variant as the foundation.
 
 ## 📦 Installation
 

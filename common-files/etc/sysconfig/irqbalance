@@ -1,0 +1,12 @@
+# =============================================================================
+# /etc/sysconfig/irqbalance
+#
+# IRQ balancing configuration
+# =============================================================================
+
+# Ban IRQs from being moved off CPU 0 (for gaming)
+# This keeps network and GPU interrupts on a consistent CPU
+IRQBALANCE_BANNED_CPUS=1
+
+# Don't balance IRQs too aggressively
+IRQBALANCE_ARGS="--hintpolicy=ignore"
