@@ -1,4 +1,6 @@
-name: Build and Deploy: AuroraMax - GameHack Linux
+name: Build and Deploy AuroraMax GameHack Linux
+
+# Triggers for the workflow
 on:
   schedule:
     - cron: "0 7 * * *"  # 7 AM UTC everyday
@@ -6,32 +8,32 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**/README.md'
+      - '**/README.md'  # Ignore changes to README.md
   pull_request:
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     name: Build and Deploy Custom Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for compatibility
     permissions:
-      contents: read
-      packages: write
-      id-token: write
+      contents: read  # Read repository contents
+      packages: write  # Write to GitHub Container Registry (GHCR)
+      id-token: write  # Write OIDC token for signing
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Checkout the repository code
 
       - name: Maximize build space
-        uses: ublue-os/remove-unwanted-software@v7
+        uses: ublue-os/remove-unwanted-software@v7  # Remove unnecessary software to free up space
 
       - name: Build and Push Custom Image
-        uses: blue-build/github-action@v1.6
+        uses: blue-build/github-action@v1.6  # Use BlueBuild GitHub Action for building custom images
         with:
-          recipe: recipe.yml
-          cosign_private_key: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          cosign_password: ${{ secrets.COSIGN_PASSWORD }}
-          registry_token: ${{ github.token }}
-          pr_event_number: ${{ github.event.number }}
-          registry: ghcr.io
-          registry_namespace: ${{ github.repository_owner }}
+          recipe: recipe.yml  # Recipe file for the custom image
+          signing_secret: ${{ secrets.SIGNING_SECRET }}  # Secret for cosign signing
+          registry_token: ${{ github.token }}  # Token for GHCR authentication
+          pr_event_number: ${{ github.event.number }}  # Tag images pushed from pull requests
+          registry: ghcr.io  # Container registry (GitHub Container Registry)
+          registry_namespace: ${{ github.repository_owner }}  # Namespace for the registry (repository owner)
