@@ -1,3 +1,7 @@
+# Archived Files
+Archive/
+*.ORIG
+
 # Cosign private key
 cosign.key
 
@@ -15,6 +19,3 @@ cosign.key
 # OS files
 .DS_Store
 Thumbs.db
-
-# GH Actions
-*.ORIG

@@ -1,16 +1,15 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # AuroraMax GameHack Blue Build Recipe
-# This is an alternative to using the Containerfile directly
-# Blue Build provides a simpler, declarative way to create custom images
+# Gaming-focused Universal Blue custom image based on Aurora (Fedora Atomic 42)
 
-name: auroramax-gamehack
+name: AuroraMax-GameHack
 description: Gaming-focused Universal Blue custom image based on Aurora
-base-image: ghcr.io/ublue-os/aurora-main
-image-version: 41
+base-image: ghcr.io/ublue-os/aurora
+image-version: latest
 
 modules:
-  - type: rpm-ostree
-    repos:
-      # Additional repositories can be added here if needed
+  - type: rpm-ostree@latest
+    repos: []  # Additional repositories can be added here if needed
     install:
       # Gaming packages
       - gamescope
@@ -19,24 +18,22 @@ modules:
       - vkBasalt
       - gamemode
       - steam-devices
-      - joystickwake
+#     - joystickwake                            <-- Temporarily Removed: COPR Repo not enabled (yet!)
       - antimicrox
-      
+
       # Additional gaming tools
-      - lutris
+#     - lutris                                  <-- Temporarily Removed: COPR Repo not enabled (yet!)
       - bottles
-      
+
       # Performance monitoring
       - corectrl
-      
+
       # Input device management
       - piper
-      
-    remove:
-      # Remove any unwanted packages here
-      # - firefox  # Example: if you want to use a different browser
 
-  - type: default-flatpaks
+    remove: []  # Remove any unwanted packages here (e.g., firefox)
+
+  - type: default-flatpaks@latest
     notify: true
     system:
       install:
@@ -44,23 +41,24 @@ modules:
         - com.valvesoftware.Steam
         - com.heroicgameslauncher.hgl
         - net.davidotek.pupgui2
+        - net.lutris.Lutris                   # --> Added Lutris here as Flatpak, instead
         - com.github.Matoking.protontricks
-        - io.github.benjamimgois.goverlay
+#       - io.github.benjamimgois.goverlay       <-- Temporarily Removed: Flatpak not found (so far!)
 
-  - type: services
-    system:
-      enabled:
-        - gamemoded.service
+#  - type: systemd@latest
+#    system:
+#      enabled:
+#        - gamemoded.service                    <-- Temporarily Removed: Service not in current image (researching!)
 
-  - type: files
+  - type: files@latest
     files:
-      - usr: /usr
-        # Custom files go here, structured like:
-        # - usr/share/applications/custom.desktop
+      - source: usr
+        destination: /usr
+        # Custom files (contents of 'files/usr' will be copied into '/usr')
+        # Example: files/usr/share/applications/custom.desktop -> /usr/share/applications/custom.desktop
 
-  - type: bling
+  - type: bling@latest
     install:
-      - 1password  # Optional: remove if not needed
+      - 1password  # Installs 1Password (GUI and CLI)
 
-  - type: signing
-    # This module signs your image with your cosign key
+  - type: signing@latest
