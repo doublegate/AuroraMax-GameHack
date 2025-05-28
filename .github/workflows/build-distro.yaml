@@ -32,7 +32,7 @@ jobs:
         uses: blue-build/github-action@v1.6  # Use BlueBuild GitHub Action for building custom images
         with:
           recipe: recipe.yml  # Recipe file for the custom image
-          signing_secret: ${{ secrets.SIGNING_SECRET }}  # Secret for cosign signing
+          signing_secret: ${{ secrets.COSIGN_PRIVATE_KEY }}  # Secret for cosign signing
           registry_token: ${{ github.token }}  # Token for GHCR authentication
           pr_event_number: ${{ github.event.number }}  # Tag images pushed from pull requests
           registry: ghcr.io  # Container registry (GitHub Container Registry)
