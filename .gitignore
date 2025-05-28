@@ -1,5 +1,6 @@
 # Archived Files
 Archive/
+*.BAK
 *.ORIG
 
 # Cosign private key
