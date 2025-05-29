@@ -327,3 +327,4 @@ modules:
   # - type: signing
   #   image-signing:
   #     enabled: true  # Ensures the built image is signed
+# Build test on branch
