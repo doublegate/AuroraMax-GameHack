@@ -9,17 +9,17 @@ image-version: latest                           # Specifies the version of the b
 base-image: ghcr.io/ublue-os/kinoite-main       # The base image used for this build
 
 modules:
-  - type: script@latest
+  - type: script
     scripts:
       - pre_script.sh       # Run: pre_script.sh before rest of file
 
-  - type: rpm-ostree@latest
+  - type: rpm-ostree
     repos:
       - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-42.noarch.rpm
       - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-42.noarch.rpm
       - https://packages.microsoft.com/yumrepos/edge/config/fedora/42/packages-microsoft-prod.rpm
-      - https://copr.fedorainfracloud.org/coprs/kylegospo/bazzite/repo/fedora-42/kylegospo-bazzite-fedora-42.repo
-      - https://copr.fedorainfracloud.org/coprs/kylegospo/bazzite-multilib/repo/fedora-42/kylegospo-bazzite-multilib-fedora-42.repo
+      - https://copr.fedorainfracloud.org/coprs/ublue-os/bazzite/repo/fedora-42/ublue-os-bazzite-fedora-42.repo
+      - https://copr.fedorainfracloud.org/coprs/bazzite-org/kernel-bazzite/repo/fedora-42/bazzite-org-kernel-bazzite-fedora-42.repo
     install:
       # Base System Utilities
       - htop                # System monitoring tool
@@ -163,8 +163,13 @@ modules:
       - firefox             # Will use Flatpak version
       - firefox-langpacks   # Language packs for Firefox
 
-  - type: files@latest
+  - type: files
     files:
+      # Signing Keys
+      - source: common-files/keys/cosign.pub
+        destination: /etc/pki/containers/cosign.pub
+        mode: '644'
+      
       # Sysctl Configurations
       - source: common-files/etc/sysctl.d/98-auroramax-scheduler.conf
         destination: /etc/sysctl.d/98-auroramax-scheduler.conf
@@ -245,11 +250,6 @@ modules:
       - source: common-files/etc/sysconfig/irqbalance
         destination: /etc/sysconfig/irqbalance
 
-      # Skeleton Files for New Users
-      - source: common-files/etc/skel/.bashrc
-        destination: /etc/skel/.bashrc
-      - source: common-files/etc/skel/.bash_aliases
-        destination: /etc/skel/.bash_aliases
 
       # Message of the Day
       - source: common-files/etc/motd.d/10-auroramax
@@ -299,7 +299,7 @@ modules:
         destination: /etc/auroramax-release
 
   # Module to manage systemd services
-  - type: systemd@latest
+  - type: systemd
     system:
       enabled:
         - systemd-timesyncd.service         # Ensures time synchronization
@@ -311,7 +311,7 @@ modules:
         - fwupd-refresh.timer               # Timer for firmware updates
 
   # Module to set kernel arguments
-  - type: kargs@latest
+  - type: kargs
     kargs:
       - quiet                               # Suppresses most boot messages
       - loglevel=3                          # Sets the console log level
@@ -325,11 +325,11 @@ modules:
       - systemd.unified_cgroup_hierarchy=1  # Uses the unified cgroup hierarchy
 
   # Module to run custom scripts during the build process
-  - type: script@latest
+  - type: script
     scripts:
       - post_script.sh       # Run: post_script.sh after rest of file
 
   # Module to enable image signing
-  - type: signing@latest
+  - type: signing
 #   image-signing:
 #     enabled: true  # Ensures the built image is signed

@@ -102,7 +102,7 @@ This checklist tracks all tasks that need to be completed before the first build
 
 ### 11. ✅ Signing Key
 - **Status**: ✅ Present
-- **File**: `cosign.pub` exists for image signing
+- **File**: `common-files/keys/cosign.pub` exists for image signing (moved from root)
 
 ---
 
@@ -117,10 +117,13 @@ This checklist tracks all tasks that need to be completed before the first build
 ---
 
 ## Notes
-- Last Updated: 2025-05-29 (All tasks completed, build prerequisites verified!)
+- Last Updated: 2025-05-29 (Version 0.1.0 Release)
 - Variant: init-minimal
 - Base Image: ghcr.io/ublue-os/kinoite-main:latest
-- Status: **✅ READY FOR FIRST BUILD - ALL PREREQUISITES MET!**
+- Status: **✅ VERSION 0.1.0 - BUILD READY!**
+- BlueBuild: Recipe validates successfully
+- GitHub Actions: Workflow configured and ready
+- All Fixes Applied: BlueBuild compatibility, repository migrations, path corrections
 
 ## Build Command
 From the `variants/init-minimal/` directory, run:

@@ -122,6 +122,19 @@ Final synthesis and optimization into production-ready release.
 
 **Current Status**: Version 0.1.0 - Init-minimal variant complete and build-ready. All configuration files created, build prerequisites verified, and ready for first OCI image build.
 
+## 🚀 Quick Start (v0.1.0)
+
+### Build Locally
+```bash
+cd variants/init-minimal/
+bluebuild build --recipe recipe.yml
+```
+
+### From GitHub Container Registry (once built)
+```bash
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/doublegate/auroramax-gamehack-init-minimal:latest
+```
+
 ## 📦 Installation
 
 ### Method 1: Rebase from Existing Atomic Desktop

@@ -8,12 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-05-29
 
 ### Summary
-First complete build-ready release of the init-minimal variant. All configuration files are in place, build system is fully operational, and the image is ready for compilation using BlueBuild.
+First complete build-ready release of the init-minimal variant. All configuration files are in place, build system is fully operational with BlueBuild compatibility, and the image is ready for compilation.
 
 ### Added
 - **Missing Configuration Files**:
   - `60-io-scheduler.rules`: Comprehensive I/O scheduler configuration for NVMe, SSDs, HDDs, and virtual devices
   - Verified presence of skeleton files (.bashrc and .bash_aliases)
+  - `common-files/keys/` directory with cosign.pub for image signing
 - **Project Management**:
   - `to-dos/` directory for tracking project tasks and completion status
   - `ref_info/` directory for local reference materials (gitignored)
@@ -21,15 +22,29 @@ First complete build-ready release of the init-minimal variant. All configuratio
 - **Documentation**:
   - Version 0.1.0 designation in README
   - Build readiness status documentation
-  - Updated project status to reflect completion
+  - GitHub Actions setup guide
+  - BlueBuild compatibility documentation
 
 ### Fixed
-- **GRUB Configuration Path**: Corrected path to use standard Linux convention `common-files/etc/default/grub.d/` in both recipe.yml and Containerfile
-- **Build Prerequisites**: Verified BlueBuild CLI (v0.9.12) and container runtimes (Podman 5.5.0, Docker 28.1.1) are installed
+- **BlueBuild Compatibility**:
+  - Removed unsupported `stages` section from recipe.yml
+  - Moved scripts to proper `files/scripts/` directory structure
+  - Updated recipe to use files module for key installation
+  - Fixed all validation errors reported by `bluebuild validate`
+- **Repository Migrations**:
+  - Updated kylegospo/bazzite → ublue-os/bazzite
+  - Updated kylegospo/bazzite-multilib → bazzite-org/kernel-bazzite
+- **Path Corrections**:
+  - GRUB configuration: `common-files/default/` → `common-files/etc/default/`
+  - Consolidated cosign.pub to `common-files/keys/` (removed root duplicate)
+- **GitHub Actions Workflow**:
+  - Fixed "Invalid type for 'on'" error (duplicate push keys)
+  - Created proper workflow file replacing incorrect action definition
 
 ### Changed
 - **Project Status**: Moved from "implementing" to "build-ready" status
 - **.gitignore**: Added `ref_info/` directory to keep local notes private
+- **Build System**: Full BlueBuild integration with validated recipe.yml
 
 ## [Unreleased] - 2025-01-28
 
