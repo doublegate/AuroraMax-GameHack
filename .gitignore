@@ -1,8 +1,11 @@
 # Claude Specific(s)
 CLAUDE.local.md
 
+# Local information and notes
+ref_info/
+
 # Archived Files
-Archive/
+archive/
 *.BAK
 *.ORIG
 

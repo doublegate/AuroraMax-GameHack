@@ -1,5 +1,7 @@
 # AuroraMax - Gaming & Hacking Linux
 
+**Version: 0.1.0 - Init-Minimal Variant** (Build Ready: 2025-05-29)
+
 An ambitious Universal Blue-based Linux distribution built on Fedora Kinoite (KDE Plasma) that delivers the ultimate all-in-one powerhouse OS for gaming, development, AI/ML, and security research. This immutable desktop operating system provides a rock-solid platform with aggressive performance optimizations, comprehensive toolsets, and an innovative phased development approach.
 
 ![AuroraMax GameHack Logo](images/auroramax-logo.png)
@@ -118,7 +120,7 @@ AI-driven analysis to generate enhanced variants focusing on security, performan
 ### Phase 4: Release Candidate
 Final synthesis and optimization into production-ready release.
 
-**Current Status**: Implementing multi-variant build infrastructure with init-minimal as foundation.
+**Current Status**: Version 0.1.0 - Init-minimal variant complete and build-ready. All configuration files created, build prerequisites verified, and ready for first OCI image build.
 
 ## 📦 Installation
 

@@ -5,6 +5,32 @@ All notable changes to the AuroraMax-GameHack project will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2025-05-29
+
+### Summary
+First complete build-ready release of the init-minimal variant. All configuration files are in place, build system is fully operational, and the image is ready for compilation using BlueBuild.
+
+### Added
+- **Missing Configuration Files**:
+  - `60-io-scheduler.rules`: Comprehensive I/O scheduler configuration for NVMe, SSDs, HDDs, and virtual devices
+  - Verified presence of skeleton files (.bashrc and .bash_aliases)
+- **Project Management**:
+  - `to-dos/` directory for tracking project tasks and completion status
+  - `ref_info/` directory for local reference materials (gitignored)
+  - Comprehensive build checklist for init-minimal variant
+- **Documentation**:
+  - Version 0.1.0 designation in README
+  - Build readiness status documentation
+  - Updated project status to reflect completion
+
+### Fixed
+- **GRUB Configuration Path**: Corrected path from `common-files/etc/default/grub.d/` to `common-files/default/grub.d/` in both recipe.yml and Containerfile
+- **Build Prerequisites**: Verified BlueBuild CLI (v0.9.12) and container runtimes (Podman 5.5.0, Docker 28.1.1) are installed
+
+### Changed
+- **Project Status**: Moved from "implementing" to "build-ready" status
+- **.gitignore**: Added `ref_info/` directory to keep local notes private
+
 ## [Unreleased] - 2025-01-28
 
 ### Changed

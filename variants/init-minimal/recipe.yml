@@ -256,7 +256,7 @@ modules:
         destination: /etc/motd.d/10-auroramax
 
       # GRUB Configuration
-      - source: common-files/etc/default/grub.d/10-auroramax.cfg
+      - source: common-files/default/grub.d/10-auroramax.cfg
         destination: /etc/default/grub.d/10-auroramax.cfg
 
       # Executables
