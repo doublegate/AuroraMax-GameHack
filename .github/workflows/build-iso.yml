@@ -4,6 +4,28 @@
 name: Build Installer ISO
 
 on:
+  # Build on push requests
+  push:
+    branches:
+      - fix/init-minimal-build-workarounds
+    tags:
+      - 'v*.*.*'
+    paths:
+      - 'variants/**'
+      - 'common-files/**'
+      - 'templates/**'
+      - '.github/workflows/bluebuild.yml'
+  
+  # Build on pull requests
+  pull_request:
+    branches:
+      - fix/init-minimal-build-workarounds
+    paths:
+      - 'variants/**'
+      - 'common-files/**'
+      - 'templates/**'
+      - '.github/workflows/bluebuild.yml'
+
   workflow_dispatch:
     inputs:
       variant:
