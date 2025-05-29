@@ -111,14 +111,14 @@ steps:
         cp bzImage iso/boot/
         cp initramfs.cpio.gz iso/boot/
         cat << 'EOF' > iso/boot/grub/grub.cfg
-        set default=0
-        set timeout=5
+set default=0
+set timeout=5
 
-        menuentry "AuroraMax GameHack" {
-            linux /boot/bzImage
-            initrd /boot/initramfs.cpio.gz
-        }
-        EOF
+menuentry "AuroraMax GameHack" {
+    linux /boot/bzImage
+    initrd /boot/initramfs.cpio.gz
+}
+EOF
 
     - name: Create bootable ISO
       run: |
