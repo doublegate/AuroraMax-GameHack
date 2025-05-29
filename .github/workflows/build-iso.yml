@@ -4,9 +4,10 @@
 name: Build Installer ISO
 
 on:
-  # Build on push requests
+  # Build on push to branches or tags
   push:
     branches:
+      - main
       - fix/init-minimal-build-workarounds
     tags:
       - 'v*.*.*'
@@ -14,18 +15,20 @@ on:
       - 'variants/**'
       - 'common-files/**'
       - 'templates/**'
-      - '.github/workflows/bluebuild.yml'
+      - '.github/workflows/build-iso.yml'
   
   # Build on pull requests
   pull_request:
     branches:
+      - main
       - fix/init-minimal-build-workarounds
     paths:
       - 'variants/**'
       - 'common-files/**'
       - 'templates/**'
-      - '.github/workflows/bluebuild.yml'
+      - '.github/workflows/build-iso.yml'
 
+  # Allow manual trigger
   workflow_dispatch:
     inputs:
       variant:
@@ -34,16 +37,20 @@ on:
         default: 'init-minimal'
         type: choice
         options:
-          - release-candidate
-          - init-gaming
-          - init-dev
-          - init-hacking
           - init-minimal
+          - init-stable
+          - init-cuttingedge
+          - init-ux
+          - init-dev
+          - init-gaming
+          - init-hacking
           - semifinal
+          - release-candidate
       image_tag:
         description: 'Image tag to use (leave empty for latest)'
         required: false
         default: ''
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -78,13 +85,22 @@ jobs:
           sudo apt-get install -y buildah
           buildah --version
 
-      - name: Determine image reference
+      - name: Determine variant and image reference
         id: image-ref
         run: |
-          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
-            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          # Determine variant (use workflow_dispatch input or default to init-minimal)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VARIANT="${{ github.event.inputs.variant }}"
           else
-            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.variant }}-latest" >> $GITHUB_OUTPUT
+            VARIANT="init-minimal"
+          fi
+          echo "variant=${VARIANT}" >> $GITHUB_OUTPUT
+          
+          # Determine image reference
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}-${VARIANT}:${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}-${VARIANT}:latest" >> $GITHUB_OUTPUT
           fi
 
       - name: Pull OCI image
@@ -102,14 +118,14 @@ jobs:
           [installer]
           vendor = "AuroraMax Project"
           product = "AuroraMax GameHack"
-          variant = "${{ github.event.inputs.variant }}"
+          variant = "${{ steps.image-ref.outputs.variant }}"
 
           [boot]
-          title = "AuroraMax GameHack - ${{ github.event.inputs.variant }}"
+          title = "AuroraMax GameHack - ${{ steps.image-ref.outputs.variant }}"
           timeout = 30
 
           [output]
-          filename = "auroramax-gamehack-${{ github.event.inputs.variant }}.iso"
+          filename = "auroramax-gamehack-${{ steps.image-ref.outputs.variant }}.iso"
           EOF
 
       - name: Build ISO using bootc-image-builder
@@ -121,7 +137,7 @@ jobs:
 
           # For now, create a dummy ISO file
           mkdir -p output
-          echo "Placeholder ISO" > output/auroramax-gamehack-${{ github.event.inputs.variant }}.iso
+          echo "Placeholder ISO" > output/auroramax-gamehack-${{ steps.image-ref.outputs.variant }}.iso
 
       - name: Calculate checksums
         run: |
@@ -132,7 +148,7 @@ jobs:
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auroramax-gamehack-${{ github.event.inputs.variant }}-iso
+          name: auroramax-gamehack-${{ steps.image-ref.outputs.variant }}-iso
           path: |
             output/*.iso
             output/SHA256SUMS
@@ -142,7 +158,7 @@ jobs:
       - name: Create release notes
         run: |
           cat > output/release-notes.md << EOF
-          # AuroraMax GameHack ISO - ${{ github.event.inputs.variant }}
+          # AuroraMax GameHack ISO - ${{ steps.image-ref.outputs.variant }}
 
           Built from: ${{ steps.image-ref.outputs.ref }}
           Build date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
