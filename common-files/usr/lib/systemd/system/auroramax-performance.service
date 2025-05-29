@@ -1,0 +1,17 @@
+# =============================================================================
+# /usr/lib/systemd/system/auroramax-performance.service
+#
+# Service to apply performance tweaks at boot
+# =============================================================================
+
+[Unit]
+Description=AuroraMax Performance Optimizations
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/auroramax-performance.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

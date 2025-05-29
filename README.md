@@ -56,12 +56,26 @@ AuroraMax GameHack combines:
 
 AuroraMax follows a sophisticated 4-phase iterative development process:
 
-1. **Phase 1: Seven Init Variants** - Specialized variants exploring different philosophies
-2. **Phase 2: Synthesis I** - Merge best features into SemiFinal variant
-3. **Phase 3: LLM Refinement** - AI-driven analysis and enhancement
-4. **Phase 4: Release Candidate** - Final synthesis and optimization
+### Phase 1: Seven Init Variants
+Specialized variants exploring different philosophies:
+- **init-minimal**: Lean base for customization
+- **init-stable**: Rock-solid reliability focus
+- **init-cuttingedge**: Latest stable software
+- **init-ux**: User-friendly defaults
+- **init-dev**: Comprehensive development environment
+- **init-gaming**: Ultimate gaming experience
+- **init-hacking**: Security testing toolkit
 
-Currently implementing the **Init-General-Minimal** variant as the foundation.
+### Phase 2: Synthesis I → SemiFinal
+Merge best features from all Init variants into one cohesive SemiFinal variant.
+
+### Phase 3: LLM Refinement → 3 Recommend Variants
+AI-driven analysis to generate enhanced variants focusing on security, performance, and innovation.
+
+### Phase 4: Release Candidate
+Final synthesis and optimization into production-ready release.
+
+**Current Status**: Implementing multi-variant build infrastructure with init-minimal as foundation.
 
 ## 📦 Installation
 
@@ -69,16 +83,26 @@ Currently implementing the **Init-General-Minimal** variant as the foundation.
 
 ```bash
 # For verified images (recommended)
-rpm-ostree rebase ostree-image-signed:docker://ghcr.io/doublegate/auroramax-gamehack:latest
+# Replace <variant> with: init-minimal, init-stable, init-gaming, etc.
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/doublegate/auroramax-gamehack:<variant>
 
 # For testing/development
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/doublegate/auroramax-gamehack:latest
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/doublegate/auroramax-gamehack:<variant>
 ```
 
 ### Method 2: Fresh Installation
 1. Download the latest Aurora ISO from [getaurora.dev](https://getaurora.dev)
 2. Install Aurora normally
-3. After installation, rebase to AuroraMax-GameHack using the commands above
+3. After installation, rebase to your chosen AuroraMax-GameHack variant
+
+### Available Variants
+- `init-minimal`: Minimal base system
+- `init-stable`: Conservative, stability-focused
+- `init-cuttingedge`: Latest packages and features
+- `init-ux`: Enhanced user experience
+- `init-dev`: Development-focused tools
+- `init-gaming`: Gaming optimizations and tools
+- `init-hacking`: Security research and pentesting
 
 ## 🛠️ Usage
 
@@ -124,58 +148,69 @@ just hardware-info           # Show detailed hardware information
 
 ## 🔧 Customization
 
-### Modifying the Image
+### Project Structure
 
-1. **Fork this repository**
-2. **Edit configuration files**:
-   - `recipe.yml`: Package list and modules
-   - `files/`: Custom system files
-   - `Containerfile`: Advanced build customization
-
-3. **Build locally** (optional):
-   ```bash
-   ./build-auroramax.sh
-   ```
-
-4. **Push changes** to trigger automated builds
-
-### Adding Packages
-
-Edit `recipe.yml` and add packages to the appropriate section:
-
-```yaml
-# For RPM packages
-rpm:
-  install:
-    - package-name
-
-# For Flatpak applications  
-default-flatpaks:
-  notify: true
-  install:
-    - com.example.Application
+```
+auroramax-gamehack/
+├── common-files/          # Shared across all variants
+│   ├── etc/              # System configurations
+│   ├── usr/              # Scripts and systemd units
+│   └── default/          # GRUB configuration
+├── templates/            # Base build templates
+├── variants/             # Variant-specific builds
+│   └── init-minimal/     # Example variant
+│       ├── Containerfile
+│       ├── build.sh
+│       ├── recipe.yml    # BlueBuild recipe
+│       └── packages-init-minimal.list
+└── scripts/              # Helper scripts
 ```
 
-### Custom System Files
+### Modifying a Variant
 
-Place files in the `files/` directory matching the filesystem hierarchy:
-- `files/etc/`: System configuration
-- `files/usr/`: System binaries and data
-- `files/home/`: Default user configurations
+1. **Fork this repository**
+2. **Choose a variant** to modify in `variants/`
+3. **Edit variant files**:
+   - `Containerfile`: Container build definition
+   - `build.sh`: Installation and configuration script
+   - `packages-*.list`: Package list for the variant
+   - `recipe.yml`: BlueBuild recipe (if using BlueBuild)
+
+4. **Test locally**:
+   ```bash
+   cd variants/init-minimal
+   podman build -t auroramax-test .
+   ```
+
+5. **Push changes** to trigger automated builds
+
+### Adding System Files
+
+**Common files** (shared across variants):
+- Place in `common-files/` following Linux filesystem hierarchy
+- Example: `common-files/etc/sysctl.d/99-auroramax.conf`
+
+**Variant-specific files**:
+- Place in `variants/<variant>/files/`
+- Will override common files if same path exists
 
 ## 🚀 Development
 
 ### Local Building
 
 ```bash
-# Quick build script
-./build-auroramax.sh
+# Build a specific variant
+cd variants/init-minimal
+podman build -t auroramax-init-minimal:test .
 
-# Manual build with Podman
-podman build -t auroramax-gamehack:test .
+# Build with custom Fedora version
+podman build --build-arg FEDORA_VERSION=41 -t auroramax-init-minimal:f41 .
 
 # Test in container
-podman run -it --rm auroramax-gamehack:test bash
+podman run -it --rm auroramax-init-minimal:test bash
+
+# Build ISO (requires additional tooling)
+scripts/build-iso.sh init-minimal
 ```
 
 ### CI/CD Pipeline
@@ -218,7 +253,10 @@ The project uses GitHub Actions for automated builds:
 ## 📚 Documentation
 
 ### Included Packages
-See `recipe.yml` for the complete list of pre-installed packages and Flatpaks.
+Each variant has its own package list:
+- Common packages: `templates/packages-base.list`
+- Variant-specific: `variants/<variant>/packages-*.list`
+- BlueBuild recipes: `variants/<variant>/recipe.yml`
 
 ### Troubleshooting
 - **Rebasing issues**: Ensure you have sufficient disk space

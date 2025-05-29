@@ -1,0 +1,49 @@
+# iso.toml
+# AuroraMax GameHack ISO Build Configuration Template
+# Place this in each variant directory and customize as needed
+
+[image]
+# Source image configuration
+transport = "registry"
+name = "ghcr.io/doublegate/auroramax-gamehack:VARIANT-latest"
+
+[installer]
+# Installer branding
+vendor = "AuroraMax Project"
+product = "AuroraMax GameHack"
+variant = "VARIANT"
+version = "1.0"
+
+[boot]
+# Boot menu configuration
+title = "AuroraMax GameHack - VARIANT"
+timeout = 30
+
+# Kernel parameters for the installer
+kernel_args = [
+    "quiet",
+    "rhgb",
+    "rd.luks.options=discard",
+]
+
+[users]
+# Default user configuration (optional)
+# Users should be created during installation
+create_default_user = false
+
+[storage]
+# Storage configuration hints
+default_fstype = "btrfs"
+default_mount_options = "compress=zstd:1,noatime"
+
+[output]
+# Output ISO configuration
+filename = "auroramax-gamehack-VARIANT.iso"
+label = "AURORAMAX_VARIANT"
+compression = "xz"
+
+[customization]
+# Post-install customization scripts (optional)
+post_install_scripts = [
+    "/usr/bin/auroramax-firstboot.sh"
+]

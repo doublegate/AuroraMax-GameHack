@@ -1,0 +1,335 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+
+# Recipe for AuroraMax GameHack Init-Minimal
+# This recipe builds a minimal base variant of AuroraMax GameHack
+
+name: auroramax-gamehack-init-minimal
+description: Minimal base variant of AuroraMax GameHack - Universal Blue-based Gaming, Development, and Security Distro
+image-version: latest                           # Specifies the version of the base image
+base-image: ghcr.io/ublue-os/kinoite-main       # The base image used for this build
+
+modules:
+  - type: script@latest
+    scripts:
+      - pre_script.sh       # Run: pre_script.sh before rest of file
+
+  - type: rpm-ostree@latest
+    repos:
+      - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-42.noarch.rpm
+      - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-42.noarch.rpm
+      - https://packages.microsoft.com/yumrepos/edge/config/fedora/42/packages-microsoft-prod.rpm
+      - https://copr.fedorainfracloud.org/coprs/kylegospo/bazzite/repo/fedora-42/kylegospo-bazzite-fedora-42.repo
+      - https://copr.fedorainfracloud.org/coprs/kylegospo/bazzite-multilib/repo/fedora-42/kylegospo-bazzite-multilib-fedora-42.repo
+    install:
+      # Base System Utilities
+      - htop                # System monitoring tool
+      - iotop               # I/O monitoring
+      - iotop-c             # C-based I/O monitoring
+      - powertop            # Power usage monitoring
+      - neofetch            # System info display
+      - fastfetch           # Faster system info display
+      - lm_sensors          # Hardware sensors
+      - pciutils            # PCI device utilities
+      - usbutils            # USB device utilities
+      - smartmontools       # Disk health monitoring
+      - util-linux          # Core system utilities
+      - coreutils           # Essential GNU utilities
+      - mlocate             # File locator
+      - man-db              # Manual page database
+      - man-pages           # Manual page documentation
+
+      # Bazzite Kernel with BORE/LAVD
+      - kernel-bazzite          # Custom kernel optimized by Bazzite
+      - kernel-bazzite-devel    # Development files for kernel
+      - kernel-bazzite-headers  # Kernel headers
+
+      # Development Essentials
+      - git                 # Version control system
+      - git-lfs             # Large file support for Git
+      - gcc                 # GNU C compiler
+      - gcc-c++             # GNU C++ compiler
+      - make                # Build automation tool
+      - cmake               # Cross-platform build system
+      - python3             # Python 3 interpreter
+      - python3-pip         # Python package manager
+      - python3-virtualenv  # Virtual environments for Python
+      - python3-devel       # Python development files
+
+      # Container & Virtualization
+      - podman              # Container runtime
+      - podman-docker       # Docker compatibility layer
+      - buildah             # Container image builder
+      - skopeo              # Container image management
+      - toolbox             # Containerized CLI environment
+      - distrobox           # Advanced containerized environments
+
+      # Performance & Hardware
+      - kernel-tools        # Kernel-related utilities
+      - dkms                # Dynamic kernel module support
+      - akmod-v4l2loopback  # Virtual video device module
+      - zram-generator      # ZRAM swap configuration
+      - tuned               # System tuning daemon
+      - irqbalance          # Interrupt request balancer
+      - dmidecode           # Hardware info from BIOS
+      - hdparm              # Hard disk tuning
+      - sdparm              # SCSI disk tuning
+      - nvme-cli            # NVMe device management
+      - fwupd               # Firmware updates
+      - acpica-tools        # ACPI utilities
+
+      # Filesystem Tools
+      - btrfs-progs         # Btrfs filesystem tools
+      - xfsprogs            # XFS filesystem tools
+      - e2fsprogs           # Ext2/3/4 filesystem tools
+      - dosfstools          # FAT filesystem tools
+      - ntfs-3g             # NTFS support
+      - exfatprogs          # exFAT filesystem tools
+      - duperemove          # Deduplication tool
+      - rmlint              # Duplicate file finder
+      - rsync               # File synchronization
+
+      # Archive Tools
+      - p7zip               # 7-Zip archiver
+      - p7zip-plugins       # Additional 7-Zip plugins
+      - unrar               # RAR extractor
+      - unzip               # ZIP extractor
+      - tar                 # Tape archiver
+      - gzip                # Gzip compression
+      - bzip2               # Bzip2 compression
+      - xz                  # XZ compression
+      - zstd                # Zstandard compression
+
+      # Network Tools
+      - wget                # File downloader
+      - curl                # Data transfer tool
+      - net-tools           # Legacy network utilities
+      - bind-utils          # DNS utilities
+      - traceroute          # Network path tracing
+      - whois               # Domain lookup
+      - nmap-ncat           # Network exploration tool
+      - NetworkManager-wifi # Wi-Fi support
+      - NetworkManager-openvpn # OpenVPN support
+      - NetworkManager-openconnect # OpenConnect VPN support
+
+      # Graphics & Display
+      - mesa-dri-drivers    # OpenGL drivers
+      - mesa-vulkan-drivers # Vulkan drivers
+      - mesa-va-drivers     # Video acceleration drivers
+      - mesa-vdpau-drivers  # VDPAU drivers
+      - libva-utils         # VAAPI utilities
+      - vdpauinfo           # VDPAU info tool
+      - vulkan-tools        # Vulkan utilities
+      - vulkan-loader       # Vulkan runtime
+      - clinfo              # OpenCL info tool
+      - glxinfo             # OpenGL info tool
+
+      # Audio
+      - pipewire            # Audio and video server
+      - pipewire-alsa       # ALSA compatibility
+      - pipewire-jack-audio-connection-kit # JACK support
+      - pipewire-pulseaudio # PulseAudio compatibility
+      - wireplumber         # PipeWire session manager
+
+      # System Services
+      - cronie              # Cron daemon
+      - at                  # Job scheduler
+      - bc                  # Calculator
+      - less                # Pager
+      - tree                # Directory tree viewer
+      - dos2unix            # Text file converter
+      - jq                  # JSON processor
+      - ripgrep             # Fast grep alternative
+      - fd-find             # File finder
+      - bat                 # Cat with syntax highlighting
+      - eza                 # Modern ls alternative
+      - fzf                 # Fuzzy finder
+
+      # Just Task Runner
+      - just                # Command runner
+
+      # Flatpak Support
+      - flatpak             # Flatpak runtime
+      - xdg-desktop-portal  # Desktop integration
+      - xdg-desktop-portal-kde # KDE-specific portal
+
+      # Shell Enhancements
+      - bash-completion     # Bash autocompletion
+      - zsh                 # Z Shell
+      - tmux                # Terminal multiplexer
+      - screen              # Screen manager
+      - vim-enhanced        # Enhanced Vim editor
+      - nano                # Simple text editor
+    remove:
+      - firefox             # Will use Flatpak version
+      - firefox-langpacks   # Language packs for Firefox
+
+  - type: files@latest
+    files:
+      # Sysctl Configurations
+      - source: common-files/etc/sysctl.d/98-auroramax-scheduler.conf
+        destination: /etc/sysctl.d/98-auroramax-scheduler.conf
+      - source: common-files/etc/sysctl.d/99-auroramax-base.conf
+        destination: /etc/sysctl.d/99-auroramax-base.conf
+
+      # Kernel Command Line
+      - source: common-files/etc/kernel/cmdline.d/10-auroramax.conf
+        destination: /etc/kernel/cmdline.d/10-auroramax.conf
+
+      # Modprobe Configuration
+      - source: common-files/etc/modprobe.d/auroramax-base.conf
+        destination: /etc/modprobe.d/auroramax-base.conf
+
+      # Modules to Load
+      - source: common-files/etc/modules-load.d/auroramax-modules.conf
+        destination: /etc/modules-load.d/auroramax-modules.conf
+
+      # Environment Variables
+      - source: common-files/etc/environment.d/10-auroramax.conf
+        destination: /etc/environment.d/10-auroramax.conf
+
+      # NetworkManager Configuration
+      - source: common-files/etc/NetworkManager/conf.d/99-auroramax.conf
+        destination: /etc/NetworkManager/conf.d/99-auroramax.conf
+
+      # Audio Configuration
+      - source: common-files/etc/pulse/daemon.conf.d/10-auroramax.conf
+        destination: /etc/pulse/daemon.conf.d/10-auroramax.conf
+
+      # Security Limits
+      - source: common-files/etc/security/limits.d/99-auroramax.conf
+        destination: /etc/security/limits.d/99-auroramax.conf
+
+      # Systemd Configurations
+      - source: common-files/etc/systemd/journald.conf.d/00-journal-size.conf
+        destination: /etc/systemd/journald.conf.d/00-journal-size.conf
+      - source: common-files/etc/systemd/logind.conf.d/10-auroramax.conf
+        destination: /etc/systemd/logind.conf.d/10-auroramax.conf
+      - source: common-files/etc/systemd/zram-generator.conf
+        destination: /etc/systemd/zram-generator.conf
+      - source: common-files/etc/systemd/system/gamemode.target
+        destination: /etc/systemd/system/gamemode.target
+
+      # Tmpfiles
+      - source: common-files/etc/tmpfiles.d/auroramax-gaming.conf
+        destination: /etc/tmpfiles.d/auroramax-gaming.conf
+
+      # Udev Rules
+      - source: common-files/etc/udev/rules.d/60-io-scheduler.rules
+        destination: /etc/udev/rules.d/60-io-scheduler.rules
+      - source: common-files/etc/udev/rules.d/61-auroramax-gpu-performance.rules
+        destination: /etc/udev/rules.d/61-auroramax-gpu-performance.rules
+      - source: common-files/etc/udev/rules.d/62-auroramax-game-controllers.rules
+        destination: /etc/udev/rules.d/62-auroramax-game-controllers.rules
+      - source: common-files/etc/udev/rules.d/63-auroramax-network-performance.rules
+        destination: /etc/udev/rules.d/63-auroramax-network-performance.rules
+      - source: common-files/etc/udev/rules.d/64-auroramax-audio-performance.rules
+        destination: /etc/udev/rules.d/64-auroramax-audio-performance.rules
+      - source: common-files/etc/udev/rules.d/65-auroramax-cpu-performance.rules
+        destination: /etc/udev/rules.d/65-auroramax-cpu-performance.rules
+      - source: common-files/etc/udev/rules.d/66-auroramax-usb-devices.rules
+        destination: /etc/udev/rules.d/66-auroramax-usb-devices.rules
+      - source: common-files/etc/udev/rules.d/67-auroramax-virtual-devices.rules
+        destination: /etc/udev/rules.d/67-auroramax-virtual-devices.rules
+      - source: common-files/etc/udev/rules.d/68-auroramax-security-devices.rules
+        destination: /etc/udev/rules.d/68-auroramax-security-devices.rules
+      - source: common-files/etc/udev/rules.d/69-auroramax-power-management.rules
+        destination: /etc/udev/rules.d/69-auroramax-power-management.rules
+      - source: common-files/etc/udev/rules.d/70-auroramax-memory-performance.rules
+        destination: /etc/udev/rules.d/70-auroramax-memory-performance.rules
+
+      # WirePlumber Configuration
+      - source: common-files/etc/wireplumber/main.lua.d/51-auroramax.lua
+        destination: /etc/wireplumber/main.lua.d/51-auroramax.lua
+
+      # IRQ Balance Configuration
+      - source: common-files/etc/sysconfig/irqbalance
+        destination: /etc/sysconfig/irqbalance
+
+      # Skeleton Files for New Users
+      - source: common-files/etc/skel/.bashrc
+        destination: /etc/skel/.bashrc
+      - source: common-files/etc/skel/.bash_aliases
+        destination: /etc/skel/.bash_aliases
+
+      # Message of the Day
+      - source: common-files/etc/motd.d/10-auroramax
+        destination: /etc/motd.d/10-auroramax
+
+      # GRUB Configuration
+      - source: common-files/etc/default/grub.d/10-auroramax.cfg
+        destination: /etc/default/grub.d/10-auroramax.cfg
+
+      # Executables
+      - source: common-files/usr/bin/auroramax-firstboot.sh
+        destination: /usr/bin/auroramax-firstboot.sh
+        mode: '755'
+      - source: common-files/usr/bin/auroramax-performance.sh
+        destination: /usr/bin/auroramax-performance.sh
+        mode: '755'
+      - source: common-files/usr/bin/auroramax-scheduler.sh
+        destination: /usr/bin/auroramax-scheduler.sh
+        mode: '755'
+
+      # Systemd Services
+      - source: common-files/usr/lib/systemd/system/auroramax-firstboot.service
+        destination: /usr/lib/systemd/system/auroramax-firstboot.service
+      - source: common-files/usr/lib/systemd/system/auroramax-performance.service
+        destination: /usr/lib/systemd/system/auroramax-performance.service
+      - source: common-files/usr/lib/systemd/system/auroramax-scheduler.service
+        destination: /usr/lib/systemd/system/auroramax-scheduler.service
+
+      # Just Files
+      - source: common-files/usr/share/justfiles/00-base.just
+        destination: /usr/share/justfiles/00-base.just
+        mode: '755'
+      - source: common-files/usr/share/justfiles/01-performance.just
+        destination: /usr/share/justfiles/01-performance.just
+        mode: '755'
+      - source: common-files/usr/share/justfiles/02-hardware.just
+        destination: /usr/share/justfiles/02-hardware.just
+        mode: '755'
+
+      # Release Information
+      - content: |
+          NAME="AuroraMax GameHack"
+          VERSION="1.0"
+          VARIANT="init-minimal"
+          PRETTY_NAME="AuroraMax GameHack 1.0 (Init-Minimal)"
+          HOME_URL="https://github.com/doublegate/auroramax-gamehack"
+        destination: /etc/auroramax-release
+
+  # Module to manage systemd services
+  - type: systemd@latest
+    system:
+      enabled:
+        - systemd-timesyncd.service         # Ensures time synchronization
+        - auroramax-firstboot.service       # Custom first boot service for AuroraMax
+        - auroramax-performance.service     # Service for performance optimizations
+        - auroramax-scheduler.service       # Service for scheduling tasks
+        - fstrim.timer                      # Timer for trimming SSDs
+        - systemd-zram-setup@zram0.service  # Service to set up ZRAM for memory compression
+        - fwupd-refresh.timer               # Timer for firmware updates
+
+  # Module to set kernel arguments
+  - type: kargs@latest
+    kargs:
+      - quiet                               # Suppresses most boot messages
+      - loglevel=3                          # Sets the console log level
+      - rd.udev.log_priority=3              # Sets the udev log priority
+      - nowatchdog                          # Disables the watchdog timer
+      - nmi_watchdog=0                      # Disables the NMI watchdog
+      - transparent_hugepage=never          # Disables transparent huge pages
+      - tsc=reliable                        # Marks the TSC clocksource as reliable
+      - amd_pstate=active                   # Enables active P-state for AMD CPUs
+      - intel_pstate=active                 # Enables active P-state for Intel CPUs
+      - systemd.unified_cgroup_hierarchy=1  # Uses the unified cgroup hierarchy
+
+  # Module to run custom scripts during the build process
+  - type: script@latest
+    scripts:
+      - post_script.sh       # Run: post_script.sh after rest of file
+
+  # Module to enable image signing
+  - type: signing@latest
+#   image-signing:
+#     enabled: true  # Ensures the built image is signed

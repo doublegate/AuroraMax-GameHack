@@ -1,0 +1,116 @@
+# This stage is responsible for holding onto
+# your config without copying it directly into
+# the final image
+FROM scratch AS stage-files
+COPY ./files /files
+
+
+# Bins to install
+# These are basic tools that are added to all images.
+# Generally used for the build process. We use a multi
+# stage process so that adding the bins into the image
+# can be added to the ostree commits.
+FROM scratch AS stage-bins
+COPY --from=ghcr.io/sigstore/cosign/cosign:v2.4.3 /ko-app/cosign /bins/cosign
+COPY --from=ghcr.io/blue-build/cli:latest-installer \
+  /out/bluebuild /bins/bluebuild
+# Keys for pre-verified images
+# Used to copy the keys into the final image
+# and perform an ostree commit.
+#
+# Currently only holds the current image's
+# public key.
+FROM scratch AS stage-keys
+
+# Main image
+FROM ghcr.io/ublue-os/kinoite-main@sha256:f134fcdcccd59c96c176e13bac1765b831edcd428b37185532b997f409b72ff0 AS auroramax-gamehack-init-minimal
+ARG RECIPE=recipe.yml
+ARG IMAGE_REGISTRY=localhost
+ARG CONFIG_DIRECTORY="/tmp/files"
+ARG MODULE_DIRECTORY="/tmp/modules"
+ARG IMAGE_NAME="auroramax-gamehack-init-minimal"
+ARG BASE_IMAGE="ghcr.io/ublue-os/kinoite-main"
+ARG FORCE_COLOR=1
+ARG CLICOLOR_FORCE=1
+ARG RUST_LOG_STYLE=always
+# Key RUN
+RUN --mount=type=bind,from=stage-keys,src=/keys,dst=/tmp/keys \
+  mkdir -p /etc/pki/containers/ \
+  && cp /tmp/keys/* /etc/pki/containers/ \
+  && ostree container commit
+
+# Bin RUN
+RUN --mount=type=bind,from=stage-bins,src=/bins,dst=/tmp/bins \
+  mkdir -p /usr/bin/ \
+  && cp /tmp/bins/* /usr/bin/ \
+  && ostree container commit
+RUN --mount=type=bind,from=ghcr.io/blue-build/nushell-image:default,src=/nu,dst=/tmp/nu \
+  mkdir -p /usr/libexec/bluebuild/nu \
+  && cp -r /tmp/nu/* /usr/libexec/bluebuild/nu/ \
+  && ostree container commit
+RUN --mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/scripts/ \
+  /scripts/pre_build.sh
+
+# Module RUNs
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/script:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'script' '{"type":"script@latest","scripts":["pre_script.sh"]}'
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/rpm-ostree:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'rpm-ostree' '{"type":"rpm-ostree@latest","repos":["https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-42.noarch.rpm","https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-42.noarch.rpm","https://packages.microsoft.com/yumrepos/edge/config/fedora/42/packages-microsoft-prod.rpm","https://copr.fedorainfracloud.org/coprs/kylegospo/bazzite/repo/fedora-42/kylegospo-bazzite-fedora-42.repo","https://copr.fedorainfracloud.org/coprs/kylegospo/bazzite-multilib/repo/fedora-42/kylegospo-bazzite-multilib-fedora-42.repo"],"install":["htop","iotop","iotop-c","powertop","neofetch","fastfetch","lm_sensors","pciutils","usbutils","smartmontools","util-linux","coreutils","mlocate","man-db","man-pages","kernel-bazzite","kernel-bazzite-devel","kernel-bazzite-headers","git","git-lfs","gcc","gcc-c++","make","cmake","python3","python3-pip","python3-virtualenv","python3-devel","podman","podman-docker","buildah","skopeo","toolbox","distrobox","kernel-tools","dkms","akmod-v4l2loopback","zram-generator","tuned","irqbalance","dmidecode","hdparm","sdparm","nvme-cli","fwupd","acpica-tools","btrfs-progs","xfsprogs","e2fsprogs","dosfstools","ntfs-3g","exfatprogs","duperemove","rmlint","rsync","p7zip","p7zip-plugins","unrar","unzip","tar","gzip","bzip2","xz","zstd","wget","curl","net-tools","bind-utils","traceroute","whois","nmap-ncat","NetworkManager-wifi","NetworkManager-openvpn","NetworkManager-openconnect","mesa-dri-drivers","mesa-vulkan-drivers","mesa-va-drivers","mesa-vdpau-drivers","libva-utils","vdpauinfo","vulkan-tools","vulkan-loader","clinfo","glxinfo","pipewire","pipewire-alsa","pipewire-jack-audio-connection-kit","pipewire-pulseaudio","wireplumber","cronie","at","bc","less","tree","dos2unix","jq","ripgrep","fd-find","bat","eza","fzf","just","flatpak","xdg-desktop-portal","xdg-desktop-portal-kde","bash-completion","zsh","tmux","screen","vim-enhanced","nano"],"remove":["firefox","firefox-langpacks"]}'
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/files:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'files' '{"type":"files@latest","files":[{"source":"common-files/etc/sysctl.d/98-auroramax-scheduler.conf","destination":"/etc/sysctl.d/98-auroramax-scheduler.conf"},{"source":"common-files/etc/sysctl.d/99-auroramax-base.conf","destination":"/etc/sysctl.d/99-auroramax-base.conf"},{"source":"common-files/etc/kernel/cmdline.d/10-auroramax.conf","destination":"/etc/kernel/cmdline.d/10-auroramax.conf"},{"source":"common-files/etc/modprobe.d/auroramax-base.conf","destination":"/etc/modprobe.d/auroramax-base.conf"},{"source":"common-files/etc/modules-load.d/auroramax-modules.conf","destination":"/etc/modules-load.d/auroramax-modules.conf"},{"source":"common-files/etc/environment.d/10-auroramax.conf","destination":"/etc/environment.d/10-auroramax.conf"},{"source":"common-files/etc/NetworkManager/conf.d/99-auroramax.conf","destination":"/etc/NetworkManager/conf.d/99-auroramax.conf"},{"source":"common-files/etc/pulse/daemon.conf.d/10-auroramax.conf","destination":"/etc/pulse/daemon.conf.d/10-auroramax.conf"},{"source":"common-files/etc/security/limits.d/99-auroramax.conf","destination":"/etc/security/limits.d/99-auroramax.conf"},{"source":"common-files/etc/systemd/journald.conf.d/00-journal-size.conf","destination":"/etc/systemd/journald.conf.d/00-journal-size.conf"},{"source":"common-files/etc/systemd/logind.conf.d/10-auroramax.conf","destination":"/etc/systemd/logind.conf.d/10-auroramax.conf"},{"source":"common-files/etc/systemd/zram-generator.conf","destination":"/etc/systemd/zram-generator.conf"},{"source":"common-files/etc/systemd/system/gamemode.target","destination":"/etc/systemd/system/gamemode.target"},{"source":"common-files/etc/tmpfiles.d/auroramax-gaming.conf","destination":"/etc/tmpfiles.d/auroramax-gaming.conf"},{"source":"common-files/etc/udev/rules.d/60-io-scheduler.rules","destination":"/etc/udev/rules.d/60-io-scheduler.rules"},{"source":"common-files/etc/udev/rules.d/61-auroramax-gpu-performance.rules","destination":"/etc/udev/rules.d/61-auroramax-gpu-performance.rules"},{"source":"common-files/etc/udev/rules.d/62-auroramax-game-controllers.rules","destination":"/etc/udev/rules.d/62-auroramax-game-controllers.rules"},{"source":"common-files/etc/udev/rules.d/63-auroramax-network-performance.rules","destination":"/etc/udev/rules.d/63-auroramax-network-performance.rules"},{"source":"common-files/etc/udev/rules.d/64-auroramax-audio-performance.rules","destination":"/etc/udev/rules.d/64-auroramax-audio-performance.rules"},{"source":"common-files/etc/udev/rules.d/65-auroramax-cpu-performance.rules","destination":"/etc/udev/rules.d/65-auroramax-cpu-performance.rules"},{"source":"common-files/etc/udev/rules.d/66-auroramax-usb-devices.rules","destination":"/etc/udev/rules.d/66-auroramax-usb-devices.rules"},{"source":"common-files/etc/udev/rules.d/67-auroramax-virtual-devices.rules","destination":"/etc/udev/rules.d/67-auroramax-virtual-devices.rules"},{"source":"common-files/etc/udev/rules.d/68-auroramax-security-devices.rules","destination":"/etc/udev/rules.d/68-auroramax-security-devices.rules"},{"source":"common-files/etc/udev/rules.d/69-auroramax-power-management.rules","destination":"/etc/udev/rules.d/69-auroramax-power-management.rules"},{"source":"common-files/etc/udev/rules.d/70-auroramax-memory-performance.rules","destination":"/etc/udev/rules.d/70-auroramax-memory-performance.rules"},{"source":"common-files/etc/wireplumber/main.lua.d/51-auroramax.lua","destination":"/etc/wireplumber/main.lua.d/51-auroramax.lua"},{"source":"common-files/etc/sysconfig/irqbalance","destination":"/etc/sysconfig/irqbalance"},{"source":"common-files/etc/skel/.bashrc","destination":"/etc/skel/.bashrc"},{"source":"common-files/etc/skel/.bash_aliases","destination":"/etc/skel/.bash_aliases"},{"source":"common-files/etc/motd.d/10-auroramax","destination":"/etc/motd.d/10-auroramax"},{"source":"common-files/etc/default/grub.d/10-auroramax.cfg","destination":"/etc/default/grub.d/10-auroramax.cfg"},{"source":"common-files/usr/bin/auroramax-firstboot.sh","destination":"/usr/bin/auroramax-firstboot.sh","mode":"755"},{"source":"common-files/usr/bin/auroramax-performance.sh","destination":"/usr/bin/auroramax-performance.sh","mode":"755"},{"source":"common-files/usr/bin/auroramax-scheduler.sh","destination":"/usr/bin/auroramax-scheduler.sh","mode":"755"},{"source":"common-files/usr/lib/systemd/system/auroramax-firstboot.service","destination":"/usr/lib/systemd/system/auroramax-firstboot.service"},{"source":"common-files/usr/lib/systemd/system/auroramax-performance.service","destination":"/usr/lib/systemd/system/auroramax-performance.service"},{"source":"common-files/usr/lib/systemd/system/auroramax-scheduler.service","destination":"/usr/lib/systemd/system/auroramax-scheduler.service"},{"source":"common-files/usr/share/justfiles/00-base.just","destination":"/usr/share/justfiles/00-base.just","mode":"755"},{"source":"common-files/usr/share/justfiles/01-performance.just","destination":"/usr/share/justfiles/01-performance.just","mode":"755"},{"source":"common-files/usr/share/justfiles/02-hardware.just","destination":"/usr/share/justfiles/02-hardware.just","mode":"755"},{"content":"NAME=\"AuroraMax GameHack\"\nVERSION=\"1.0\"\nVARIANT=\"init-minimal\"\nPRETTY_NAME=\"AuroraMax GameHack 1.0 (Init-Minimal)\"\nHOME_URL=\"https://github.com/doublegate/auroramax-gamehack\"\n","destination":"/etc/auroramax-release"}]}'
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/systemd:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'systemd' '{"type":"systemd@latest","system":{"enabled":["systemd-timesyncd.service","auroramax-firstboot.service","auroramax-performance.service","auroramax-scheduler.service","fstrim.timer","systemd-zram-setup@zram0.service","fwupd-refresh.timer"]}}'
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/kargs:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'kargs' '{"type":"kargs@latest","kargs":["quiet","loglevel=3","rd.udev.log_priority=3","nowatchdog","nmi_watchdog=0","transparent_hugepage=never","tsc=reliable","amd_pstate=active","intel_pstate=active","systemd.unified_cgroup_hierarchy=1"]}'
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/script:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'script' '{"type":"script@latest","scripts":["post_script.sh"]}'
+RUN \
+--mount=type=bind,from=stage-files,src=/files,dst=/tmp/files,rw \
+--mount=type=bind,from=ghcr.io/blue-build/modules/signing:latest,src=/modules,dst=/tmp/modules,rw \
+--mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/tmp/scripts/ \
+  --mount=type=cache,dst=/var/cache/rpm-ostree,id=rpm-ostree-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  --mount=type=cache,dst=/var/cache/libdnf5,id=dnf-cache-auroramax-gamehack-init-minimal-latest,sharing=locked \
+  /tmp/scripts/run_module.sh 'signing' '{"type":"signing@latest"}'
+
+RUN --mount=type=bind,from=ghcr.io/blue-build/cli/build-scripts:v0.9.12,src=/scripts/,dst=/scripts/ \
+  /scripts/post_build.sh
+
+# Labels are added last since they cause cache misses with buildah
+LABEL org.blue-build.build-id="859277fa-4a84-4818-8890-ed87c8b5894b"
+LABEL org.opencontainers.image.title="auroramax-gamehack-init-minimal"
+LABEL org.opencontainers.image.description="Minimal base variant of AuroraMax GameHack - Universal Blue-based Gaming, Development, and Security Distro"
+LABEL org.opencontainers.image.source=""
+LABEL org.opencontainers.image.base.digest="sha256:f134fcdcccd59c96c176e13bac1765b831edcd428b37185532b997f409b72ff0"
+LABEL org.opencontainers.image.base.name="ghcr.io/ublue-os/kinoite-main:latest"
+LABEL org.opencontainers.image.created="2025-05-29T01:23:56.639134243+00:00"
+LABEL io.artifacthub.package.readme-url=https://raw.githubusercontent.com/blue-build/cli/main/README.md

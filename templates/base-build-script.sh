@@ -15,7 +15,7 @@ podman pull ghcr.io/sigstore/cosign/cosign:v2.4.3
 
 # STEP 1: Generate the Containerfile
 echo "🛠️  Generating Containerfile from ${RECIPE}..."
-# bluebuild generate -o Containerfile "$RECIPE"
+bluebuild generate -o Containerfile "$RECIPE"
 
 # STEP 2: Build with Podman
 echo "📦 Building container image with podman..."

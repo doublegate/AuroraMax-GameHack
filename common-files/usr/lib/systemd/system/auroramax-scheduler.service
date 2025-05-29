@@ -1,0 +1,14 @@
+# /usr/lib/systemd/system/auroramax-scheduler.service
+
+[Unit]
+Description=AuroraMax CPU Scheduler Selection
+After=multi-user.target
+ConditionPathExists=/sys/kernel/sched/sched_bore
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/auroramax-scheduler.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

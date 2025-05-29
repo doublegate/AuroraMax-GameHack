@@ -8,27 +8,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2025-01-28
 
 ### Changed
-- **Major Project Restructure**: Transitioned from simple gaming-focused image to comprehensive multi-variant distribution
-- **File Organization**: Moved from flat `files/` structure to organized `common-files/` and `variants/` structure
-- **Build System**: Preparing for phased development with Init variants → Synthesis → LLM refinement → Release Candidate
+- **Complete Multi-Variant Architecture Implementation**: Fully transitioned from single-image to multi-variant development approach
+- **Build System Overhaul**: Implemented template-based build system with shared components
+- **File Organization**: Restructured entire project with `common-files/`, `templates/`, and `variants/` directories
+- **Documentation**: Updated README.md to reflect new multi-variant structure and build process
 
-### Added (Phase 1 - Init-General-Minimal)
-- **Common Files Structure**:
-  - System configurations: sysctl, udev rules, kernel parameters
-  - Performance optimizations: BORE scheduler, MGLRU, Kyber I/O
-  - Network tuning: TCP BBR, increased buffer sizes
-  - User environment: skeleton files, bash aliases
-  - Systemd services: firstboot, performance tuning
-- **Modular Justfiles**:
-  - Base system management commands
-  - Performance tuning utilities
-  - Hardware configuration tools
-- **Directory Creation Script**: Automated setup for project structure
+### Added
+- **Template System**:
+  - `base-build-script.sh`: Shared build functions for all variants
+  - `base-containerfile.txt`: Template for variant Containerfiles
+  - `base-recipe.yml`: BlueBuild recipe template
+  - `build-bluebuild.sh`: BlueBuild integration script
+  - `iso.toml`: ISO generation configuration
+  - `packages-base.list`: Common package list
+- **Variants Structure**:
+  - `init-minimal/`: First implemented variant with minimal base system
+    - Complete Containerfile with proper labeling
+    - Variant-specific build.sh script
+    - BlueBuild recipe.yml for declarative builds
+    - Pre/post scripts for additional customization
+    - Package list manifest
+- **Common Files Implementation**:
+  - **System Configuration** (`etc/`):
+    - CPU scheduler tuning (BORE/LAVD support)
+    - Memory management (MGLRU, ZRAM with zstd)
+    - Network performance (TCP BBR, increased buffers)
+    - Audio latency reduction (PulseAudio/PipeWire configs)
+    - Security limits for gaming workloads
+  - **Udev Rules** (`etc/udev/rules.d/`):
+    - GPU performance profiles (61-auroramax-gpu-performance.rules)
+    - Game controller support (62-auroramax-game-controllers.rules)
+    - Network device optimization (63-auroramax-network-performance.rules)
+    - Audio device configuration (64-auroramax-audio-performance.rules)
+    - CPU governor management (65-auroramax-cpu-performance.rules)
+    - USB device handling (66-auroramax-usb-devices.rules)
+    - Virtual device support (67-auroramax-virtual-devices.rules)
+    - Security device permissions (68-auroramax-security-devices.rules)
+    - Power management (69-auroramax-power-management.rules)
+    - Memory performance (70-auroramax-memory-performance.rules)
+  - **Scripts** (`usr/bin/`):
+    - `auroramax-firstboot.sh`: First boot configuration
+    - `auroramax-performance.sh`: Performance tuning script
+    - `auroramax-scheduler.sh`: CPU scheduler management
+  - **Systemd Services** (`usr/lib/systemd/system/`):
+    - `auroramax-firstboot.service`: One-time setup service
+    - `auroramax-performance.service`: Boot-time performance optimization
+    - `auroramax-scheduler.service`: Dynamic scheduler selection
+  - **Justfiles** (`usr/share/justfiles/`):
+    - `00-base.just`: Core system management
+    - `01-performance.just`: Performance tuning commands
+    - `02-hardware.just`: Hardware information and control
+- **WirePlumber Configuration**: Audio device routing optimizations
+- **GRUB Configuration**: Boot parameter management
+- **Contributing Guidelines**: CONTRIBUTING.md for project contributors
 
 ### Removed
-- Old flat file structure under `files/`
-- Gaming-specific sysctl configuration (moved to common-files with broader scope)
-- Monolithic justfiles (replaced with modular approach)
+- **Legacy Build Files**:
+  - `Containerfile`: Old single-variant containerfile
+  - `build-auroramax.sh`: Replaced by variant-specific build scripts
+  - `recipe.yml`: Moved to variant-specific locations
+  - `create_dirs.sh`: No longer needed with new structure
+- **Old File Structure**: Flat `files/` directory replaced by organized hierarchy
 
 ## [0.1.0] - 2025-01-28
 
@@ -99,5 +139,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic GitHub Actions workflow
 - Initial documentation
 
-[Unreleased]: https://github.com/YOUR_GITHUB_USERNAME/AuroraMax-GameHack/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/YOUR_GITHUB_USERNAME/AuroraMax-GameHack/releases/tag/v0.1.0
+[Unreleased]: https://github.com/doublegate/AuroraMax-GameHack/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/doublegate/AuroraMax-GameHack/releases/tag/v0.1.0

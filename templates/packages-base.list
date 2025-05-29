@@ -1,0 +1,143 @@
+# AuroraMax GameHack Base Package List
+# packages-base.list
+#
+# Core system packages included in all variants
+# Comments indicate package purpose
+
+# Base System Utilities
+htop                    # Interactive process viewer
+iotop                   # I/O usage monitor
+powertop                # Power consumption analyzer
+neofetch                # System information tool
+fastfetch               # Fast system information tool
+lm_sensors              # Hardware monitoring
+pciutils                # PCI device utilities
+usbutils                # USB device utilities
+smartmontools           # SMART disk monitoring
+util-linux              # System utilities
+coreutils               # Core GNU utilities
+
+# Development Essentials
+git                     # Version control
+git-lfs                 # Git large file support
+gcc                     # GNU C compiler
+gcc-c++                 # GNU C++ compiler
+make                    # Build automation
+cmake                   # Cross-platform build system
+python3                 # Python interpreter
+python3-pip             # Python package manager
+python3-virtualenv      # Python virtual environments
+
+# Container & Virtualization
+podman                  # Container runtime
+podman-docker           # Docker CLI compatibility
+buildah                 # Container image builder
+skopeo                  # Container image operations
+toolbox                 # Container-based development
+distrobox               # Container-based environments
+
+# Package Management
+dnf-plugins-core        # DNF plugin support
+rpm-build               # RPM package building
+
+# Archive Tools
+p7zip                   # 7-zip support
+p7zip-plugins           # Additional 7-zip plugins
+unrar                   # RAR archive support
+unzip                   # ZIP archive support
+tar                     # Tape archive
+gzip                    # GNU zip
+bzip2                   # Better zip
+xz                      # XZ compression
+zstd                    # Zstandard compression
+
+# Network Tools
+wget                    # Web downloader
+curl                    # URL transfer tool
+net-tools               # Legacy network tools
+bind-utils              # DNS utilities
+traceroute              # Network path tracing
+whois                   # Domain lookup
+nmap-ncat               # Netcat reimplementation
+
+# Filesystem Tools
+btrfs-progs             # Btrfs utilities
+xfsprogs                # XFS utilities
+e2fsprogs               # ext2/3/4 utilities
+dosfstools              # FAT filesystem utilities
+ntfs-3g                 # NTFS support
+exfatprogs              # exFAT support
+duperemove              # Deduplication tool
+rmlint                  # Duplicate file finder
+rsync                   # File synchronization
+
+# System Performance
+kernel-devel            # Kernel development files
+kernel-headers          # Kernel header files
+dkms                    # Dynamic kernel module support
+akmod-v4l2loopback      # Virtual video device
+zram-generator          # ZRAM configuration
+tuned                   # System tuning daemon
+irqbalance              # IRQ load balancing
+
+# Hardware Support
+dmidecode               # DMI/SMBIOS decoder
+hdparm                  # Hard disk parameters
+sdparm                  # SCSI disk parameters
+nvme-cli                # NVMe management
+fwupd                   # Firmware update daemon
+acpica-tools            # ACPI utilities
+
+# Graphics & Display
+mesa-va-drivers         # VA-API drivers
+mesa-vdpau-drivers      # VDPAU drivers
+mesa-vulkan-drivers     # Vulkan drivers
+libva-utils             # VA-API utilities
+vdpauinfo               # VDPAU information
+vulkan-tools            # Vulkan utilities
+vulkan-loader           # Vulkan ICD loader
+clinfo                  # OpenCL information
+glxinfo                 # OpenGL information
+
+# Audio
+pipewire                # Modern audio server
+pipewire-alsa           # ALSA compatibility
+pipewire-jack-audio-connection-kit  # JACK compatibility
+pipewire-pulseaudio     # PulseAudio compatibility
+wireplumber             # PipeWire session manager
+
+# System Services
+cronie                  # Cron daemon
+at                      # Job scheduling
+mlocate                 # File locator
+man-db                  # Manual page database
+man-pages               # System manual pages
+
+# Shell & Terminal
+bash-completion         # Bash tab completion
+zsh                     # Z shell
+tmux                    # Terminal multiplexer
+screen                  # Terminal multiplexer
+vim-enhanced            # Enhanced Vi editor
+nano                    # Simple text editor
+
+# Miscellaneous
+bc                      # Calculator
+less                    # Pager
+tree                    # Directory tree viewer
+dos2unix                # Text file converter
+jq                      # JSON processor
+yq                      # YAML processor
+ripgrep                 # Fast grep alternative
+fd-find                 # Fast find alternative
+bat                     # Cat alternative with syntax highlighting
+exa                     # Modern ls replacement
+fzf                     # Fuzzy finder
+
+# Just task runner
+just                    # Command runner
+
+# Flatpak support
+flatpak                 # Application sandboxing
+xdg-desktop-portal      # Desktop integration
+xdg-desktop-portal-kde  # KDE desktop integration
