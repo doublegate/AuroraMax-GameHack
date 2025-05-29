@@ -1,9 +1,11 @@
 name: BlueBuild AuroraMax-GameHack
 on:
-  # Build on push to main branch
+  # Build on push to main branch or version tags
   push:
     branches:
       - main
+    tags:
+      - 'v*.*.*'
     paths:
       - 'variants/**'
       - 'common-files/**'
@@ -19,11 +21,6 @@ on:
       - 'common-files/**'
       - 'templates/**'
       - '.github/workflows/bluebuild.yml'
-  
-  # Build when tagged with version
-  push:
-    tags:
-      - 'v*.*.*'
   
   # Allow manual trigger
   workflow_dispatch:
@@ -110,7 +107,7 @@ jobs:
 
       # Build the image using BlueBuild
       - name: Build Image with BlueBuild
-        uses: blue-build/github-action@v1.6
+        uses: blue-build/github-action@v1
         with:
           # Path to recipe file relative to variant directory
           recipe: variants/${{ matrix.variant }}/recipe.yml
