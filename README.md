@@ -1,6 +1,49 @@
-# AuroraMax-GameHack
+# AuroraMax - Gaming & Hacking Linux
 
 An ambitious Universal Blue-based Linux distribution built on Fedora Kinoite (KDE Plasma) that delivers the ultimate all-in-one powerhouse OS for gaming, development, AI/ML, and security research. This immutable desktop operating system provides a rock-solid platform with aggressive performance optimizations, comprehensive toolsets, and an innovative phased development approach.
+
+![AuroraMax GameHack Logo](images/auroramax-logo.png)
+
+> A next-generation Universal Blue atomic image built on Fedora Kinoite (KDE) that delivers a powerful all-in-one gaming workstation with developer tools, retro game emulation, and cutting-edge performance optimizations.
+
+[![Build](https://github.com/doublegate/AuroraMax-GameHack/actions/workflows/action.yml/badge.svg)](https://github.com/doublegate/AuroraMax-GameHack/actions/workflows/action.yml)
+[![ISO](https://github.com/doublegate/AuroraMax-GameHack/actions/workflows/build-iso.yml/badge.svg)](https://github.com/doublegate/AuroraMax-GameHack/actions/workflows/build-iso.yml)
+
+## Features
+
+AuroraMax GameHack combines five powerful toolkits into one immutable, atomic OS:
+
+### 🎮 Comprehensive Gaming Platform
+- Pre-configured Steam, Lutris, ProtonUp-Qt, and Heroic launcher
+- EmuDeck with RetroArch for full retro gaming support
+- MangoHud, vkBasalt, LatencyFleX performance tools
+- Gamescope session for console-like experience
+
+### 💻 Developer Workstation
+- Complete language stacks: GCC, Clang, Rust, Python, Go, Node.js, Java
+- VS Code (Codium) with DevContainer support
+- Container tools: Podman, Docker CLI, Kubernetes utilities
+- Cloud SDKs for AWS, GCP, and Azure
+
+### 🧠 AI/ML Toolkit
+- CUDA, PyTorch, TensorFlow with GPU support
+- JupyterLab for data science workflows
+- ONNX Runtime and Hugging Face Transformers
+- OpenCL, ROCm, and Intel oneAPI support
+
+### 🔒 Security Suite
+- Complete penetration testing toolkit (Nmap, Metasploit, Burp Suite)
+- Password cracking (John, Hashcat) and wireless tools (Aircrack-ng)
+- Forensics utilities (Autopsy, Volatility) and reverse engineering (Ghidra, Radare2)
+- Network analysis with Wireshark and tcpdump
+
+### ⚡ Performance Optimizations
+- Custom kernel with BORE/LAVD CPU schedulers for reduced latency
+- Kyber I/O scheduler for SSDs, BFQ for HDDs
+- ZRAM swap with zstd compression
+- GameMode and advanced CPU governor control
+
+All this packaged in an immutable, atomic image with transactional updates and automatic rollback capability.
 
 ## 🚀 Project Vision
 
