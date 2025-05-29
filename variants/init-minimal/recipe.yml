@@ -17,16 +17,16 @@ modules:
     repos:
       - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-42.noarch.rpm
       - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-42.noarch.rpm
-      - https://packages.microsoft.com/yumrepos/edge/config/fedora/42/packages-microsoft-prod.rpm
-      - https://copr.fedorainfracloud.org/coprs/ublue-os/bazzite/repo/fedora-42/ublue-os-bazzite-fedora-42.repo
-      - https://copr.fedorainfracloud.org/coprs/bazzite-org/kernel-bazzite/repo/fedora-42/bazzite-org-kernel-bazzite-fedora-42.repo
+      # COPR repos temporarily disabled - may not be compatible with current base image
+      # - https://copr.fedorainfracloud.org/coprs/ublue-os/bazzite/repo/fedora-42/ublue-os-bazzite-fedora-42.repo
+      # - https://copr.fedorainfracloud.org/coprs/bazzite-org/kernel-bazzite/repo/fedora-42/bazzite-org-kernel-bazzite-fedora-42.repo
     install:
       # Base System Utilities
       - htop                # System monitoring tool
       - iotop               # I/O monitoring
       - iotop-c             # C-based I/O monitoring
       - powertop            # Power usage monitoring
-      - neofetch            # System info display
+      # - neofetch            # System info display - not available in current repos
       - fastfetch           # Faster system info display
       - lm_sensors          # Hardware sensors
       - pciutils            # PCI device utilities
@@ -34,14 +34,14 @@ modules:
       - smartmontools       # Disk health monitoring
       - util-linux          # Core system utilities
       - coreutils           # Essential GNU utilities
-      - mlocate             # File locator
+      # - mlocate             # File locator - not available in current repos
       - man-db              # Manual page database
       - man-pages           # Manual page documentation
 
-      # Bazzite Kernel with BORE/LAVD
-      - kernel-bazzite          # Custom kernel optimized by Bazzite
-      - kernel-bazzite-devel    # Development files for kernel
-      - kernel-bazzite-headers  # Kernel headers
+      # Bazzite Kernel - Commented out for initial build
+      # - kernel-bazzite          # Custom kernel optimized by Bazzite
+      # - kernel-bazzite-devel    # Development files for kernel
+      # - kernel-bazzite-headers  # Kernel headers
 
       # Development Essentials
       - git                 # Version control system
@@ -66,7 +66,7 @@ modules:
       # Performance & Hardware
       - kernel-tools        # Kernel-related utilities
       - dkms                # Dynamic kernel module support
-      - akmod-v4l2loopback  # Virtual video device module
+      # - akmod-v4l2loopback  # Virtual video device module - needs kernel headers
       - zram-generator      # ZRAM swap configuration
       - tuned               # System tuning daemon
       - irqbalance          # Interrupt request balancer
@@ -111,17 +111,17 @@ modules:
       - NetworkManager-openvpn # OpenVPN support
       - NetworkManager-openconnect # OpenConnect VPN support
 
-      # Graphics & Display
-      - mesa-dri-drivers    # OpenGL drivers
-      - mesa-vulkan-drivers # Vulkan drivers
-      - mesa-va-drivers     # Video acceleration drivers
-      - mesa-vdpau-drivers  # VDPAU drivers
+      # Graphics & Display - Mesa drivers already in base image
+      # - mesa-dri-drivers    # OpenGL drivers
+      # - mesa-vulkan-drivers # Vulkan drivers
+      # - mesa-va-drivers     # Video acceleration drivers
+      # - mesa-vdpau-drivers  # VDPAU drivers - conflicts with base image mesa
       - libva-utils         # VAAPI utilities
       - vdpauinfo           # VDPAU info tool
       - vulkan-tools        # Vulkan utilities
       - vulkan-loader       # Vulkan runtime
-      - clinfo              # OpenCL info tool
-      - glxinfo             # OpenGL info tool
+      # - clinfo              # OpenCL info tool - may need additional drivers
+      # - glxinfo             # OpenGL info tool - commented for minimal build
 
       # Audio
       - pipewire            # Audio and video server
@@ -141,7 +141,7 @@ modules:
       - ripgrep             # Fast grep alternative
       - fd-find             # File finder
       - bat                 # Cat with syntax highlighting
-      - eza                 # Modern ls alternative
+      # - eza                 # Modern ls alternative - not available in current repos
       - fzf                 # Fuzzy finder
 
       # Just Task Runner
@@ -165,10 +165,10 @@ modules:
 
   - type: files
     files:
-      # Signing Keys
-      - source: common-files/keys/cosign.pub
-        destination: /etc/pki/containers/cosign.pub
-        mode: '644'
+      # Signing Keys - Temporarily removed due to BlueBuild bug
+      # - source: common-files/keys/cosign.pub
+      #   destination: /etc/pki/containers/cosign.pub
+      #   mode: '644'
       
       # Sysctl Configurations
       - source: common-files/etc/sysctl.d/98-auroramax-scheduler.conf
@@ -289,25 +289,18 @@ modules:
         destination: /usr/share/justfiles/02-hardware.just
         mode: '755'
 
-      # Release Information
-      - content: |
-          NAME="AuroraMax GameHack"
-          VERSION="1.0"
-          VARIANT="init-minimal"
-          PRETTY_NAME="AuroraMax GameHack 1.0 (Init-Minimal)"
-          HOME_URL="https://github.com/doublegate/auroramax-gamehack"
-        destination: /etc/auroramax-release
+      # Release Information - created via post script instead due to BlueBuild bug
 
-  # Module to manage systemd services
+  # Module to manage systemd services - temporarily simplified
   - type: systemd
     system:
       enabled:
         - systemd-timesyncd.service         # Ensures time synchronization
-        - auroramax-firstboot.service       # Custom first boot service for AuroraMax
-        - auroramax-performance.service     # Service for performance optimizations
-        - auroramax-scheduler.service       # Service for scheduling tasks
+        # - auroramax-firstboot.service       # Custom first boot service for AuroraMax
+        # - auroramax-performance.service     # Service for performance optimizations
+        # - auroramax-scheduler.service       # Service for scheduling tasks
         - fstrim.timer                      # Timer for trimming SSDs
-        - systemd-zram-setup@zram0.service  # Service to set up ZRAM for memory compression
+        # - systemd-zram-setup@zram0.service  # Service to set up ZRAM for memory compression
         - fwupd-refresh.timer               # Timer for firmware updates
 
   # Module to set kernel arguments
@@ -330,6 +323,7 @@ modules:
       - post_script.sh       # Run: post_script.sh after rest of file
 
   # Module to enable image signing
-  - type: signing
-#   image-signing:
-#     enabled: true  # Ensures the built image is signed
+  # Commented out temporarily to fix build issues
+  # - type: signing
+  #   image-signing:
+  #     enabled: true  # Ensures the built image is signed

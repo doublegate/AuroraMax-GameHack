@@ -1,9 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-# Enable Bazzite COPR repositories for custom kernel packages
-dnf copr enable -y ublue-os/bazzite
-dnf copr enable -y bazzite-org/kernel-bazzite
+# Pre-build script for AuroraMax GameHack Init-Minimal
+echo "Starting AuroraMax GameHack Init-Minimal build..."
 
-# Update package metadata
-dnf makecache -y
+# No additional setup needed - repositories are handled in recipe.yml

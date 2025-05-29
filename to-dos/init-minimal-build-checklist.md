@@ -120,13 +120,28 @@ This checklist tracks all tasks that need to be completed before the first build
 - Last Updated: 2025-05-29 (Version 0.1.0 Release)
 - Variant: init-minimal
 - Base Image: ghcr.io/ublue-os/kinoite-main:latest
-- Status: **✅ VERSION 0.1.0 - BUILD READY!**
+- Status: **✅ VERSION 0.1.0 - BUILD SUCCESSFUL!**
 - BlueBuild: Recipe validates successfully
 - GitHub Actions: Workflow configured and ready
 - All Fixes Applied: BlueBuild compatibility, repository migrations, path corrections
 
-## Build Command
-From the `variants/init-minimal/` directory, run:
+## Build Status: ✅ BUILD SUCCESSFUL! (2025-05-29)
+
+### Successful Build Details
+- **Image**: `localhost/auroramax-gamehack-init-minimal:latest`
+- **Image ID**: `d4ccce402f91`
+- **Size**: 9.21 GB
+- **Build Method**: Custom `build-direct.sh` script (due to BlueBuild key mounting issues)
+
+### Issues Resolved During Build
+1. BlueBuild empty stage-keys error
+2. Unavailable packages removed (eza, mlocate, neofetch)
+3. Mesa package conflicts resolved
+4. Content-based file creation moved to post_script.sh
+5. COPR repositories temporarily disabled
+
+### Build Command Used
+From the project root directory:
 ```bash
-bluebuild build --recipe recipe.yml
+./scripts/build-direct.sh
 ```

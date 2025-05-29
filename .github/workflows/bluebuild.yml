@@ -1,4 +1,9 @@
 name: BlueBuild AuroraMax-GameHack
+
+# TEMPORARY NOTICE: Image signing is currently disabled due to BlueBuild
+# issues with empty stage-keys. See to-dos/init-minimal-post-build-fixes.md
+# for details and tracking of the fix.
+
 on:
   # Build on push to main branch or version tags
   push:
@@ -112,7 +117,8 @@ jobs:
           # Path to recipe file relative to variant directory
           recipe: variants/${{ matrix.variant }}/recipe.yml
           # Cosign private key for signing
-          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          # TEMPORARILY DISABLED: BlueBuild has issues with empty stage-keys
+          # cosign_private_key: ${{ secrets.SIGNING_SECRET }}
           # Registry token (GitHub token for GHCR)
           registry_token: ${{ github.token }}
           # Registry username
@@ -158,7 +164,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo "# Rebase to this image:" >> $GITHUB_STEP_SUMMARY
-          echo "rpm-ostree rebase ostree-image-signed:docker://ghcr.io/${{ github.repository_owner }}/auroramax-gamehack-${{ matrix.variant }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "# NOTE: Image is currently unsigned due to BlueBuild key mounting issues" >> $GITHUB_STEP_SUMMARY
+          echo "rpm-ostree rebase ostree-unverified-registry:ghcr.io/${{ github.repository_owner }}/auroramax-gamehack-${{ matrix.variant }}:latest" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # Check if all builds succeeded
