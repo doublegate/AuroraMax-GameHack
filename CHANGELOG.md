@@ -24,7 +24,7 @@ First complete build-ready release of the init-minimal variant. All configuratio
   - Updated project status to reflect completion
 
 ### Fixed
-- **GRUB Configuration Path**: Corrected path from `common-files/etc/default/grub.d/` to `common-files/default/grub.d/` in both recipe.yml and Containerfile
+- **GRUB Configuration Path**: Corrected path to use standard Linux convention `common-files/etc/default/grub.d/` in both recipe.yml and Containerfile
 - **Build Prerequisites**: Verified BlueBuild CLI (v0.9.12) and container runtimes (Podman 5.5.0, Docker 28.1.1) are installed
 
 ### Changed

@@ -41,9 +41,10 @@ This checklist tracks all tasks that need to be completed before the first build
 
 #### GRUB configuration path
 - **File**: `variants/init-minimal/recipe.yml` (line 259)
-- **Status**: ✅ Fixed (2025-05-29)
-- **Issue**: Referenced wrong path `common-files/etc/default/grub.d/10-auroramax.cfg`
-- **Fix Applied**: Changed to `common-files/default/grub.d/10-auroramax.cfg`
+- **Status**: ✅ Fixed (2025-05-29) - Updated again after directory restructure
+- **Original Issue**: Referenced wrong path `common-files/etc/default/grub.d/10-auroramax.cfg`
+- **First Fix**: Changed to `common-files/default/grub.d/10-auroramax.cfg`
+- **Final Fix**: Changed back to `common-files/etc/default/grub.d/10-auroramax.cfg` after moving directory
 - **Also Fixed**: Same path issue in `Containerfile` (line 75)
 
 ---
