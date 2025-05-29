@@ -1,0 +1,149 @@
+# .github/workflows/build-iso.yml
+# AuroraMax GameHack ISO Build Workflow
+
+name: Build Installer ISO
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to build ISO for'
+        required: true
+        default: 'init-minimal'
+        type: choice
+        options:
+          - release-candidate
+          - init-gaming
+          - init-dev
+          - init-hacking
+          - init-minimal
+          - semifinal
+      image_tag:
+        description: 'Image tag to use (leave empty for latest)'
+        required: false
+        default: ''
+
+env:
+  REGISTRY: ghcr.io
+  REGISTRY_USER: ${{ github.repository_owner }}
+  IMAGE_NAME: auroramax-gamehack
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            qemu-utils \
+            xorriso \
+            isolinux \
+            syslinux-efi \
+            grub-pc-bin \
+            grub-efi-amd64-bin \
+            mtools \
+            dosfstools
+
+      - name: Set up Buildah
+        run: |
+          sudo apt-get install -y buildah
+          buildah --version
+
+      - name: Determine image reference
+        id: image-ref
+        run: |
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.variant }}-latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pull OCI image
+        run: |
+          buildah pull ${{ steps.image-ref.outputs.ref }}
+          buildah images
+
+      - name: Create ISO configuration
+        run: |
+          cat > iso-config.toml << EOF
+          [image]
+          transport = "registry"
+          name = "${{ steps.image-ref.outputs.ref }}"
+
+          [installer]
+          vendor = "AuroraMax Project"
+          product = "AuroraMax GameHack"
+          variant = "${{ github.event.inputs.variant }}"
+
+          [boot]
+          title = "AuroraMax GameHack - ${{ github.event.inputs.variant }}"
+          timeout = 30
+
+          [output]
+          filename = "auroramax-gamehack-${{ github.event.inputs.variant }}.iso"
+          EOF
+
+      - name: Build ISO using bootc-image-builder
+        run: |
+          # This is a placeholder for the actual bootc-image-builder command
+          # In reality, you would use the appropriate tool here
+          echo "Building ISO with bootc-image-builder..."
+          echo "Config: $(cat iso-config.toml)"
+
+          # For now, create a dummy ISO file
+          mkdir -p output
+          echo "Placeholder ISO" > output/auroramax-gamehack-${{ github.event.inputs.variant }}.iso
+
+      - name: Calculate checksums
+        run: |
+          cd output
+          sha256sum *.iso > SHA256SUMS
+          sha512sum *.iso > SHA512SUMS
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: auroramax-gamehack-${{ github.event.inputs.variant }}-iso
+          path: |
+            output/*.iso
+            output/SHA256SUMS
+            output/SHA512SUMS
+          retention-days: 30
+
+      - name: Create release notes
+        run: |
+          cat > output/release-notes.md << EOF
+          # AuroraMax GameHack ISO - ${{ github.event.inputs.variant }}
+
+          Built from: ${{ steps.image-ref.outputs.ref }}
+          Build date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+
+          ## Installation
+
+          1. Download the ISO file
+          2. Write it to a USB drive using dd, Rufus, or Fedora Media Writer
+          3. Boot from the USB drive
+          4. Follow the installation wizard
+
+          ## Verification
+
+          Verify the ISO integrity using the provided checksums:
+
+          \`\`\`bash
+          sha256sum -c SHA256SUMS
+          sha512sum -c SHA512SUMS
+          \`\`\`
+          EOF
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: output/release-notes.md

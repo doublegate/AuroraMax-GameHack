@@ -1,0 +1,20 @@
+# =============================================================================
+# 69-auroramax-power-management.rules
+# /etc/udev/rules.d/69-auroramax-power-management.rules
+#
+# Power management rules optimized for performance
+# =============================================================================
+
+# Disable USB autosuspend for HID devices (mice, keyboards)
+ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{power/control}="on"
+
+# Disable autosuspend for USB hubs
+ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/control}="on"
+
+# Keep PCIe devices active for gaming performance
+ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x030000", ATTR{power/control}="on"  # VGA
+ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x038000", ATTR{power/control}="on"  # Display
+ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x040300", ATTR{power/control}="on"  # Audio
+
+# ASPM (Active State Power Management) - set to performance
+ACTION=="add", SUBSYSTEM=="pci", TEST=="link/l1_aspm", ATTR{link/l1_aspm}="0"

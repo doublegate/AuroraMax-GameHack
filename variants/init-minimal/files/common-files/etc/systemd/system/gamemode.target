@@ -1,0 +1,14 @@
+# =============================================================================
+# /etc/systemd/system/gamemode.target
+#
+# Systemd target for gaming mode
+# =============================================================================
+
+[Unit]
+Description=Gaming Mode Target
+Requires=multi-user.target
+After=multi-user.target
+AllowIsolate=yes
+
+[Install]
+Alias=gaming.target
