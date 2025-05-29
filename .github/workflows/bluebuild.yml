@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - main
+      - fix/init-minimal-build-workarounds
     tags:
       - 'v*.*.*'
     paths:
