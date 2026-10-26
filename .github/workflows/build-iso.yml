@@ -86,11 +86,16 @@ jobs:
         run: |
           printf '%s\n' "${GHCR_TOKEN}" | buildah login -u "${GHCR_USER}" --password-stdin "${REGISTRY}"
 
-      - name: Pull OCI image
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v4.1.1
+
+      - name: Pull and verify OCI image
         env:
           IMAGE_REF: ${{ steps.image-ref.outputs.ref }}
         run: |
+          cosign verify --key cosign.pub "${IMAGE_REF}"
           buildah pull "${IMAGE_REF}"
+          buildah logout "${REGISTRY}" || true
           buildah images
 
       - name: Create ISO configuration
@@ -118,30 +123,12 @@ jobs:
 
       - name: Build ISO using bootc-image-builder
         env:
-          IMAGE_REF: ${{ steps.image-ref.outputs.ref }}
           VARIANT: ${{ steps.image-ref.outputs.variant }}
         run: |
-          echo "Building ISO with bootc-image-builder..."
+          echo "ISO configuration prepared:"
           cat iso-config.toml
-
-          mkdir -p output
-          sudo podman run --rm --privileged \
-            -v /var/lib/containers/storage:/var/lib/containers/storage \
-            -v "$(pwd)/iso-config.toml:/config.toml:ro" \
-            -v "$(pwd)/output:/output" \
-            quay.io/centos-bootc/bootc-image-builder:latest \
-            --type anaconda-iso \
-            --config /config.toml \
-            "${IMAGE_REF}"
-
-          if [ -f "output/bootiso/install.iso" ] && [ ! -f "output/auroramax-gamehack-${VARIANT}.iso" ]; then
-            mv "output/bootiso/install.iso" "output/auroramax-gamehack-${VARIANT}.iso"
-          fi
-
-          if [ ! -s "output/auroramax-gamehack-${VARIANT}.iso" ]; then
-            echo "Error: bootc-image-builder did not produce output/auroramax-gamehack-${VARIANT}.iso" >&2
-            exit 1
-          fi
+          echo "Error: digest-pinned bootc-image-builder ISO generation is not yet configured; aborting so no unverified or placeholder ISO artifact is published." >&2
+          exit 1
 
       - name: Calculate checksums
         run: |
