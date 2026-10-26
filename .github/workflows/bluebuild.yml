@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - fix/init-minimal-build-workarounds
     tags:
       - 'v*.*.*'
     paths:
@@ -76,13 +75,14 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Full history for better caching
+          persist-credentials: false
 
       # Generate metadata for the image
       - name: Generate Image Metadata
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         id: meta
         with:
           images: |
@@ -115,17 +115,18 @@ jobs:
       - name: Build Image with BlueBuild
         uses: blue-build/github-action@v1
         with:
-          # Path to recipe file relative to variant directory
-          recipe: variants/${{ matrix.variant }}/recipe.yml
+          # Path to recipe file relative to variant recipes directory
+          recipe: recipe.yml
+          working_directory: variants/${{ matrix.variant }}
+          skip_checkout: true
           # Cosign private key for signing
-          # TEMPORARILY DISABLED: BlueBuild has issues with empty stage-keys
-          # cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
           # Registry token (GitHub token for GHCR)
           registry_token: ${{ github.token }}
           # Registry username
           registry_username: ${{ github.actor }}
           # PR event number for PR builds
-          pr_event_number: ${{ github.event.pull_request.number }}
+          pr_event_number: ${{ github.event.number }}
           # Use build space maximization for large images
           maximize_build_space: true
           # Use the latest stable CLI

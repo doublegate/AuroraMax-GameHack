@@ -4,31 +4,7 @@
 name: Build Installer ISO
 
 on:
-  # Build on push to branches or tags
-  push:
-    branches:
-      - main
-      - fix/init-minimal-build-workarounds
-    tags:
-      - 'v*.*.*'
-    paths:
-      - 'variants/**'
-      - 'common-files/**'
-      - 'templates/**'
-      - '.github/workflows/build-iso.yml'
-
-  # Build on pull requests
-  pull_request:
-    branches:
-      - main
-      - fix/init-minimal-build-workarounds
-    paths:
-      - 'variants/**'
-      - 'common-files/**'
-      - 'templates/**'
-      - '.github/workflows/build-iso.yml'
-
-  # Allow manual trigger
+  # Allow manual trigger after OCI variant image is published to GHCR
   workflow_dispatch:
     inputs:
       variant:
@@ -63,79 +39,17 @@ jobs:
     permissions:
       contents: read
       packages: read
-
-steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y buildah grub-pc-bin xorriso cpio squashfs-tools linux-image-generic
-
-    - name: Log in to GitHub Container Registry
-      run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | buildah login --username ${{ github.actor }} --password-stdin ghcr.io
-
-    - name: Pull and mount container image
-      run: |
-        IMAGE=ghcr.io/doublegate/auroramax-gamehack-init-minimal:latest
-        CONTAINER=$(buildah from $IMAGE)
-        MOUNTPOINT=$(buildah mount $CONTAINER)
-        mkdir rootfs
-        cp -a $MOUNTPOINT/. rootfs/
-        buildah unmount $CONTAINER
-
-    - name: Add kernel and init script
-      run: |
-        KERNEL=$(ls /boot/vmlinuz-* | tail -n1)
-        cp $KERNEL bzImage
-
-        cat << 'EOF' > rootfs/init
-        #!/bin/sh
-        mount -t proc none /proc
-        mount -t sysfs none /sys
-        exec /bin/sh
-        EOF
-        chmod +x rootfs/init
-
-    - name: Create initramfs
-      run: |
-        cd rootfs
-        find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../initramfs.cpio.gz
-        cd ..
-
-    - name: Prepare GRUB configuration
-      run: |
-        mkdir -p iso/boot/grub
-        cp bzImage iso/boot/
-        cp initramfs.cpio.gz iso/boot/
-        cat << 'EOF' > iso/boot/grub/grub.cfg
-set default=0
-set timeout=5
-
-menuentry "AuroraMax GameHack" {
-    linux /boot/bzImage
-    initrd /boot/initramfs.cpio.gz
-}
-EOF
-
-    - name: Create bootable ISO
-      run: |
-        grub-mkrescue -o auroramax.iso iso/
-
-    - name: Upload ISO artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: auroramax-iso
-        path: auroramax.iso
+    steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            buildah \
             qemu-utils \
             xorriso \
             isolinux \
@@ -145,23 +59,12 @@ EOF
             mtools \
             dosfstools
 
-      - name: Set up Buildah
-        run: |
-          sudo apt-get install -y buildah
-          buildah --version
-
       - name: Determine variant and image reference
         id: image-ref
         run: |
-          # Determine variant (use workflow_dispatch input or default to init-minimal)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VARIANT="${{ github.event.inputs.variant }}"
-          else
-            VARIANT="init-minimal"
-          fi
+          VARIANT="${{ github.event.inputs.variant || 'init-minimal' }}"
           echo "variant=${VARIANT}" >> $GITHUB_OUTPUT
 
-          # Determine image reference
           if [ -n "${{ github.event.inputs.image_tag }}" ]; then
             echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}-${VARIANT}:${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
           else
@@ -195,12 +98,9 @@ EOF
 
       - name: Build ISO using bootc-image-builder
         run: |
-          # This is a placeholder for the actual bootc-image-builder command
-          # In reality, you would use the appropriate tool here
           echo "Building ISO with bootc-image-builder..."
           echo "Config: $(cat iso-config.toml)"
 
-          # For now, create a dummy ISO file
           mkdir -p output
           echo "Placeholder ISO" > output/auroramax-gamehack-${{ steps.image-ref.outputs.variant }}.iso
 
@@ -211,7 +111,7 @@ EOF
           sha512sum *.iso > SHA512SUMS
 
       - name: Upload ISO artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: auroramax-gamehack-${{ steps.image-ref.outputs.variant }}-iso
           path: |
@@ -246,7 +146,7 @@ EOF
           EOF
 
       - name: Upload release notes
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-notes
           path: output/release-notes.md

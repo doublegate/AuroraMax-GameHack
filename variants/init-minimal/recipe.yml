@@ -13,155 +13,158 @@ modules:
     scripts:
       - pre_script.sh       # Run: pre_script.sh before rest of file
 
-  - type: rpm-ostree
+  - type: dnf
     repos:
-      - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-42.noarch.rpm
-      - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-42.noarch.rpm
+      nonfree: rpmfusion
       # COPR repos temporarily disabled - may not be compatible with current base image
-      # - https://copr.fedorainfracloud.org/coprs/ublue-os/bazzite/repo/fedora-42/ublue-os-bazzite-fedora-42.repo
-      # - https://copr.fedorainfracloud.org/coprs/bazzite-org/kernel-bazzite/repo/fedora-42/bazzite-org-kernel-bazzite-fedora-42.repo
+      # copr:
+      #   - ublue-os/bazzite
+      #   - bazzite-org/kernel-bazzite
     install:
-      # Base System Utilities
-      - htop                # System monitoring tool
-      - iotop               # I/O monitoring
-      - iotop-c             # C-based I/O monitoring
-      - powertop            # Power usage monitoring
-      # - neofetch            # System info display - not available in current repos
-      - fastfetch           # Faster system info display
-      - lm_sensors          # Hardware sensors
-      - pciutils            # PCI device utilities
-      - usbutils            # USB device utilities
-      - smartmontools       # Disk health monitoring
-      - util-linux          # Core system utilities
-      - coreutils           # Essential GNU utilities
-      # - mlocate             # File locator - not available in current repos
-      - man-db              # Manual page database
-      - man-pages           # Manual page documentation
+      skip-unavailable: true
+      packages:
+        # Base System Utilities
+        - htop                # System monitoring tool
+        - iotop               # I/O monitoring
+        - iotop-c             # C-based I/O monitoring
+        - powertop            # Power usage monitoring
+        # - neofetch            # System info display - not available in current repos
+        - fastfetch           # Faster system info display
+        - lm_sensors          # Hardware sensors
+        - pciutils            # PCI device utilities
+        - usbutils            # USB device utilities
+        - smartmontools       # Disk health monitoring
+        - util-linux          # Core system utilities
+        - coreutils           # Essential GNU utilities
+        # - mlocate             # File locator - not available in current repos
+        - man-db              # Manual page database
+        - man-pages           # Manual page documentation
 
-      # Bazzite Kernel - Commented out for initial build
-      # - kernel-bazzite          # Custom kernel optimized by Bazzite
-      # - kernel-bazzite-devel    # Development files for kernel
-      # - kernel-bazzite-headers  # Kernel headers
+        # Bazzite Kernel - Commented out for initial build
+        # - kernel-bazzite          # Custom kernel optimized by Bazzite
+        # - kernel-bazzite-devel    # Development files for kernel
+        # - kernel-bazzite-headers  # Kernel headers
 
-      # Development Essentials
-      - git                 # Version control system
-      - git-lfs             # Large file support for Git
-      - gcc                 # GNU C compiler
-      - gcc-c++             # GNU C++ compiler
-      - make                # Build automation tool
-      - cmake               # Cross-platform build system
-      - python3             # Python 3 interpreter
-      - python3-pip         # Python package manager
-      - python3-virtualenv  # Virtual environments for Python
-      - python3-devel       # Python development files
+        # Development Essentials
+        - git                 # Version control system
+        - git-lfs             # Large file support for Git
+        - gcc                 # GNU C compiler
+        - gcc-c++             # GNU C++ compiler
+        - make                # Build automation tool
+        - cmake               # Cross-platform build system
+        - python3             # Python 3 interpreter
+        - python3-pip         # Python package manager
+        - python3-virtualenv  # Virtual environments for Python
+        - python3-devel       # Python development files
 
-      # Container & Virtualization
-      - podman              # Container runtime
-      - podman-docker       # Docker compatibility layer
-      - buildah             # Container image builder
-      - skopeo              # Container image management
-      - toolbox             # Containerized CLI environment
-      - distrobox           # Advanced containerized environments
+        # Container & Virtualization
+        - podman              # Container runtime
+        - podman-docker       # Docker compatibility layer
+        - buildah             # Container image builder
+        - skopeo              # Container image management
+        - toolbox             # Containerized CLI environment
+        - distrobox           # Advanced containerized environments
 
-      # Performance & Hardware
-      - kernel-tools        # Kernel-related utilities
-      - dkms                # Dynamic kernel module support
-      # - akmod-v4l2loopback  # Virtual video device module - needs kernel headers
-      - zram-generator      # ZRAM swap configuration
-      - tuned               # System tuning daemon
-      - irqbalance          # Interrupt request balancer
-      - dmidecode           # Hardware info from BIOS
-      - hdparm              # Hard disk tuning
-      - sdparm              # SCSI disk tuning
-      - nvme-cli            # NVMe device management
-      - fwupd               # Firmware updates
-      - acpica-tools        # ACPI utilities
+        # Performance & Hardware
+        - kernel-tools        # Kernel-related utilities
+        - dkms                # Dynamic kernel module support
+        # - akmod-v4l2loopback  # Virtual video device module - needs kernel headers
+        - zram-generator      # ZRAM swap configuration
+        - tuned               # System tuning daemon
+        - irqbalance          # Interrupt request balancer
+        - dmidecode           # Hardware info from BIOS
+        - hdparm              # Hard disk tuning
+        - sdparm              # SCSI disk tuning
+        - nvme-cli            # NVMe device management
+        - fwupd               # Firmware updates
+        - acpica-tools        # ACPI utilities
 
-      # Filesystem Tools
-      - btrfs-progs         # Btrfs filesystem tools
-      - xfsprogs            # XFS filesystem tools
-      - e2fsprogs           # Ext2/3/4 filesystem tools
-      - dosfstools          # FAT filesystem tools
-      - ntfs-3g             # NTFS support
-      - exfatprogs          # exFAT filesystem tools
-      - duperemove          # Deduplication tool
-      - rmlint              # Duplicate file finder
-      - rsync               # File synchronization
+        # Filesystem Tools
+        - btrfs-progs         # Btrfs filesystem tools
+        - xfsprogs            # XFS filesystem tools
+        - e2fsprogs           # Ext2/3/4 filesystem tools
+        - dosfstools          # FAT filesystem tools
+        - ntfs-3g             # NTFS support
+        - exfatprogs          # exFAT filesystem tools
+        - duperemove          # Deduplication tool
+        - rmlint              # Duplicate file finder
+        - rsync               # File synchronization
 
-      # Archive Tools
-      - p7zip               # 7-Zip archiver
-      - p7zip-plugins       # Additional 7-Zip plugins
-      - unrar               # RAR extractor
-      - unzip               # ZIP extractor
-      - tar                 # Tape archiver
-      - gzip                # Gzip compression
-      - bzip2               # Bzip2 compression
-      - xz                  # XZ compression
-      - zstd                # Zstandard compression
+        # Archive Tools
+        - p7zip               # 7-Zip archiver
+        - p7zip-plugins       # Additional 7-Zip plugins
+        - unrar               # RAR extractor
+        - unzip               # ZIP extractor
+        - tar                 # Tape archiver
+        - gzip                # Gzip compression
+        - bzip2               # Bzip2 compression
+        - xz                  # XZ compression
+        - zstd                # Zstandard compression
 
-      # Network Tools
-      - wget                # File downloader
-      - curl                # Data transfer tool
-      - net-tools           # Legacy network utilities
-      - bind-utils          # DNS utilities
-      - traceroute          # Network path tracing
-      - whois               # Domain lookup
-      - nmap-ncat           # Network exploration tool
-      - NetworkManager-wifi # Wi-Fi support
-      - NetworkManager-openvpn # OpenVPN support
-      - NetworkManager-openconnect # OpenConnect VPN support
+        # Network Tools
+        - wget                # File downloader
+        - curl                # Data transfer tool
+        - net-tools           # Legacy network utilities
+        - bind-utils          # DNS utilities
+        - traceroute          # Network path tracing
+        - whois               # Domain lookup
+        - nmap-ncat           # Network exploration tool
+        - NetworkManager-wifi # Wi-Fi support
+        - NetworkManager-openvpn # OpenVPN support
+        - NetworkManager-openconnect # OpenConnect VPN support
 
-      # Graphics & Display - Mesa drivers already in base image
-      # - mesa-dri-drivers    # OpenGL drivers
-      # - mesa-vulkan-drivers # Vulkan drivers
-      # - mesa-va-drivers     # Video acceleration drivers
-      # - mesa-vdpau-drivers  # VDPAU drivers - conflicts with base image mesa
-      - libva-utils         # VAAPI utilities
-      - vdpauinfo           # VDPAU info tool
-      - vulkan-tools        # Vulkan utilities
-      - vulkan-loader       # Vulkan runtime
-      # - clinfo              # OpenCL info tool - may need additional drivers
-      # - glxinfo             # OpenGL info tool - commented for minimal build
+        # Graphics & Display - Mesa drivers already in base image
+        # - mesa-dri-drivers    # OpenGL drivers
+        # - mesa-vulkan-drivers # Vulkan drivers
+        # - mesa-va-drivers     # Video acceleration drivers
+        # - mesa-vdpau-drivers  # VDPAU drivers - conflicts with base image mesa
+        - libva-utils         # VAAPI utilities
+        - vdpauinfo           # VDPAU info tool
+        - vulkan-tools        # Vulkan utilities
+        - vulkan-loader       # Vulkan runtime
+        # - clinfo              # OpenCL info tool - may need additional drivers
+        # - glxinfo             # OpenGL info tool - commented for minimal build
 
-      # Audio
-      - pipewire            # Audio and video server
-      - pipewire-alsa       # ALSA compatibility
-      - pipewire-jack-audio-connection-kit # JACK support
-      - pipewire-pulseaudio # PulseAudio compatibility
-      - wireplumber         # PipeWire session manager
+        # Audio
+        - pipewire            # Audio and video server
+        - pipewire-alsa       # ALSA compatibility
+        - pipewire-jack-audio-connection-kit # JACK support
+        - pipewire-pulseaudio # PulseAudio compatibility
+        - wireplumber         # PipeWire session manager
 
-      # System Services
-      - cronie              # Cron daemon
-      - at                  # Job scheduler
-      - bc                  # Calculator
-      - less                # Pager
-      - tree                # Directory tree viewer
-      - dos2unix            # Text file converter
-      - jq                  # JSON processor
-      - ripgrep             # Fast grep alternative
-      - fd-find             # File finder
-      - bat                 # Cat with syntax highlighting
-      # - eza                 # Modern ls alternative - not available in current repos
-      - fzf                 # Fuzzy finder
+        # System Services
+        - cronie              # Cron daemon
+        - at                  # Job scheduler
+        - bc                  # Calculator
+        - less                # Pager
+        - tree                # Directory tree viewer
+        - dos2unix            # Text file converter
+        - jq                  # JSON processor
+        - ripgrep             # Fast grep alternative
+        - fd-find             # File finder
+        - bat                 # Cat with syntax highlighting
+        # - eza                 # Modern ls alternative - not available in current repos
+        - fzf                 # Fuzzy finder
 
-      # Just Task Runner
-      - just                # Command runner
+        # Just Task Runner
+        - just                # Command runner
 
-      # Flatpak Support
-      - flatpak             # Flatpak runtime
-      - xdg-desktop-portal  # Desktop integration
-      - xdg-desktop-portal-kde # KDE-specific portal
+        # Flatpak Support
+        - flatpak             # Flatpak runtime
+        - xdg-desktop-portal  # Desktop integration
+        - xdg-desktop-portal-kde # KDE-specific portal
 
-      # Shell Enhancements
-      - bash-completion     # Bash autocompletion
-      - zsh                 # Z Shell
-      - tmux                # Terminal multiplexer
-      - screen              # Screen manager
-      - vim-enhanced        # Enhanced Vim editor
-      - nano                # Simple text editor
+        # Shell Enhancements
+        - bash-completion     # Bash autocompletion
+        - zsh                 # Z Shell
+        - tmux                # Terminal multiplexer
+        - screen              # Screen manager
+        - vim-enhanced        # Enhanced Vim editor
+        - nano                # Simple text editor
     remove:
-      - firefox             # Will use Flatpak version
-      - firefox-langpacks   # Language packs for Firefox
+      packages:
+        - firefox             # Will use Flatpak version
+        - firefox-langpacks   # Language packs for Firefox
 
   - type: files
     files:
@@ -327,4 +330,3 @@ modules:
   # - type: signing
   #   image-signing:
   #     enabled: true  # Ensures the built image is signed
-# Build test on branch

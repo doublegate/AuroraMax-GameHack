@@ -19,7 +19,7 @@ fi
 
 # Clean up package cache and temporary files
 rpm-ostree cleanup -m || true
-rm -rf /tmp/* /var/tmp/* || true
+rm -rf /var/tmp/* || true
 find /usr -name "*.pyc" -delete || true
 
 # Create release information file
