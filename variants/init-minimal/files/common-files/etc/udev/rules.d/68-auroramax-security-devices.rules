@@ -1,0 +1,28 @@
+# =============================================================================
+# 68-auroramax-security-devices.rules
+# /etc/udev/rules.d/68-auroramax-security-devices.rules
+#
+# Security hardware and testing devices
+# =============================================================================
+
+# YubiKey devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="1050", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Proxmark3 RFID tool
+SUBSYSTEM=="usb", ATTR{idVendor}=="2d2d", ATTR{idProduct}=="504d", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="9ac4", ATTR{idProduct}=="4b8f", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# HackRF One
+SUBSYSTEM=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="6089", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="604b", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# USRP SDR devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="2500", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="fffe", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# RTL-SDR devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2832", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2838", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Bus Pirate
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6001", MODE="0666", GROUP="plugdev", TAG+="uaccess"

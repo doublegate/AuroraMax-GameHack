@@ -1,0 +1,18 @@
+# =============================================================================
+# 64-auroramax-audio-performance.rules
+# /etc/udev/rules.d/64-auroramax-audio-performance.rules
+#
+# Audio device configuration for low latency
+# =============================================================================
+
+# USB Audio devices - set low latency
+ACTION=="add", SUBSYSTEM=="usb", ENV{ID_USB())audio}=="?*", ATTR{power/control}="on"
+
+# PCI Audio devices - optimize for performance
+ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x040300", ATTR{power/control}="on"
+
+# Set audio group permissions
+SUBSYSTEM=="sound", GROUP="audio", MODE="0660"
+
+# Ensure timer resolution is accessible for audio applications
+DEVPATH=="/devices/virtual/misc/hpet", MODE="0666", GROUP="audio"

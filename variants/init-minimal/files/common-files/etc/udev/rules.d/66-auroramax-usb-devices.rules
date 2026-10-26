@@ -1,0 +1,48 @@
+# =============================================================================
+# 66-auroramax-usb-devices.rules
+# /etc/udev/rules.d/66-auroramax-usb-devices.rules
+#
+# USB device permissions for development and security tools
+# =============================================================================
+
+# Android devices (ADB/Fastboot)
+# Google
+SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# Samsung
+SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# OnePlus
+SUBSYSTEM=="usb", ATTR{idVendor}=="2a70", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# Xiaomi
+SUBSYSTEM=="usb", ATTR{idVendor}=="2717", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Arduino boards
+SUBSYSTEM=="usb", ATTR{idVendor}=="2341", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="2a03", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# FTDI USB Serial devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# CP210x USB Serial
+SUBSYSTEM=="usb", ATTR{idVendor}=="10c4", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# STM32 bootloader
+SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="df11", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Raspberry Pi Pico
+SUBSYSTEM=="usb", ATTR{idVendor}=="2e8a", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# USB Rubber Ducky / BadUSB devices (for security testing)
+SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="0201", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# Logic Analyzers
+SUBSYSTEM=="usb", ATTR{idVendor}=="0925", ATTR{idProduct}=="3881", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="21a9", ATTR{idProduct}=="1001", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+
+# USB Wi-Fi adapters commonly used for security testing
+# Alfa AWUS036ACH
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8812", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# Alfa AWUS036AC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="881a", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# TP-Link TL-WN722N
+SUBSYSTEM=="usb", ATTR{idVendor}=="0cf3", ATTR{idProduct}=="9271", MODE="0666", GROUP="plugdev", TAG+="uaccess"
