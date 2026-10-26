@@ -1,9 +1,5 @@
 name: BlueBuild AuroraMax-GameHack
 
-# TEMPORARY NOTICE: Image signing is currently disabled due to BlueBuild
-# issues with empty stage-keys. See to-dos/init-minimal-post-build-fixes.md
-# for details and tracking of the fix.
-
 on:
   # Build on push to main branch or version tags
   push:
@@ -111,6 +107,16 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
 
+      # Stage recipe and signing keys where blue-build/github-action expects them
+      - name: Stage recipe and signing keys
+        run: |
+          mkdir -p recipes
+          cp "variants/${{ matrix.variant }}/recipe.yml" recipes/recipe.yml
+          mkdir -p "variants/${{ matrix.variant }}/recipes"
+          cp "variants/${{ matrix.variant }}/recipe.yml" "variants/${{ matrix.variant }}/recipes/recipe.yml"
+          mkdir -p "variants/${{ matrix.variant }}/keys"
+          cp common-files/keys/cosign.pub "variants/${{ matrix.variant }}/keys/cosign.pub"
+
       # Build the image using BlueBuild
       - name: Build Image with BlueBuild
         uses: blue-build/github-action@v1
@@ -165,9 +171,8 @@ jobs:
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "# Rebase to this image:" >> $GITHUB_STEP_SUMMARY
-          echo "# NOTE: Image is currently unsigned due to BlueBuild key mounting issues" >> $GITHUB_STEP_SUMMARY
-          echo "rpm-ostree rebase ostree-unverified-registry:ghcr.io/${{ github.repository_owner }}/auroramax-gamehack-${{ matrix.variant }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "# Rebase to this signed image:" >> $GITHUB_STEP_SUMMARY
+          echo "rpm-ostree rebase ostree-image-signed:docker://ghcr.io/${{ github.repository_owner }}/auroramax-gamehack-${{ matrix.variant }}:latest" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # Check if all builds succeeded

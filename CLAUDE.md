@@ -330,7 +330,7 @@ auroramax-gamehack/
 ./scripts/build-direct.sh
 
 # BlueBuild (when workarounds are resolved)
-bluebuild build --push recipe.yml
+bluebuild build --push variants/init-minimal/recipe.yml
 
 # GitHub Actions (on push to feature branch)
 git push origin fix/init-minimal-build-workarounds

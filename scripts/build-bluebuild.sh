@@ -33,8 +33,8 @@ mkdir -p "$BUILD_DIR/files/scripts"
 cp variants/init-minimal/files/scripts/pre_script.sh "$BUILD_DIR/files/scripts/"
 cp variants/init-minimal/files/scripts/post_script.sh "$BUILD_DIR/files/scripts/"
 
-# Copy common files
-cp -r common-files "$BUILD_DIR/"
+# Copy common files into the files stage directory
+cp -r common-files "$BUILD_DIR/files/"
 
 # BlueBuild expects keys in a specific location
 # Create a keys directory at the build context root

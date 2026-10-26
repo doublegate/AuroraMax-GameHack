@@ -168,10 +168,10 @@ modules:
 
   - type: files
     files:
-      # Signing Keys - Temporarily removed due to BlueBuild bug
-      # - source: common-files/keys/cosign.pub
-      #   destination: /etc/pki/containers/cosign.pub
-      #   mode: '644'
+      # Signing Keys
+      - source: common-files/keys/cosign.pub
+        destination: /etc/pki/containers/cosign.pub
+        mode: '644'
       
       # Sysctl Configurations
       - source: common-files/etc/sysctl.d/98-auroramax-scheduler.conf
@@ -245,9 +245,9 @@ modules:
       - source: common-files/etc/udev/rules.d/70-auroramax-memory-performance.rules
         destination: /etc/udev/rules.d/70-auroramax-memory-performance.rules
 
-      # WirePlumber Configuration
-      - source: common-files/etc/wireplumber/main.lua.d/51-auroramax.lua
-        destination: /etc/wireplumber/main.lua.d/51-auroramax.lua
+      # WirePlumber Configuration (WirePlumber 0.5+ conf.d format)
+      - source: common-files/etc/wireplumber/wireplumber.conf.d/51-auroramax.conf
+        destination: /etc/wireplumber/wireplumber.conf.d/51-auroramax.conf
 
       # IRQ Balance Configuration
       - source: common-files/etc/sysconfig/irqbalance
@@ -282,6 +282,9 @@ modules:
         destination: /usr/lib/systemd/system/auroramax-scheduler.service
 
       # Just Files
+      - source: common-files/usr/share/justfiles/justfile
+        destination: /usr/share/justfiles/justfile
+        mode: '644'
       - source: common-files/usr/share/justfiles/00-base.just
         destination: /usr/share/justfiles/00-base.just
         mode: '755'
@@ -294,12 +297,12 @@ modules:
 
       # Release Information - created via post script instead due to BlueBuild bug
 
-  # Module to manage systemd services - temporarily simplified
+  # Module to manage systemd services
   - type: systemd
     system:
       enabled:
         - systemd-timesyncd.service         # Ensures time synchronization
-        # - auroramax-firstboot.service       # Custom first boot service for AuroraMax
+        - auroramax-firstboot.service       # Custom first boot service for AuroraMax
         # - auroramax-performance.service     # Service for performance optimizations
         # - auroramax-scheduler.service       # Service for scheduling tasks
         - fstrim.timer                      # Timer for trimming SSDs
@@ -326,7 +329,4 @@ modules:
       - post_script.sh       # Run: post_script.sh after rest of file
 
   # Module to enable image signing
-  # Commented out temporarily to fix build issues
-  # - type: signing
-  #   image-signing:
-  #     enabled: true  # Ensures the built image is signed
+  - type: signing

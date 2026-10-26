@@ -21,7 +21,7 @@ echo -e "${YELLOW}Generating Containerfile with BlueBuild...${NC}"
 
 # Generate the Containerfile
 cd variants/init-minimal
-bluebuild generate recipe.yml
+bluebuild generate -o Containerfile recipe.yml
 
 # Fix the Containerfile by removing the problematic key mounting step
 echo -e "${YELLOW}Fixing Containerfile...${NC}"

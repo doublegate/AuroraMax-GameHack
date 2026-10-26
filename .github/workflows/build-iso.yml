@@ -61,48 +61,87 @@ jobs:
 
       - name: Determine variant and image reference
         id: image-ref
+        env:
+          INPUT_VARIANT: ${{ github.event.inputs.variant }}
+          INPUT_IMAGE_TAG: ${{ github.event.inputs.image_tag }}
         run: |
-          VARIANT="${{ github.event.inputs.variant || 'init-minimal' }}"
-          echo "variant=${VARIANT}" >> $GITHUB_OUTPUT
-
-          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
-            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}-${VARIANT}:${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "ref=${{ env.REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}-${VARIANT}:latest" >> $GITHUB_OUTPUT
+          VARIANT="${INPUT_VARIANT:-init-minimal}"
+          if [[ ! "${VARIANT}" =~ ^[a-z0-9-]+$ ]]; then
+            echo "Invalid variant: ${VARIANT}" >&2
+            exit 1
           fi
+          echo "variant=${VARIANT}" >> "$GITHUB_OUTPUT"
+
+          IMAGE_TAG="${INPUT_IMAGE_TAG:-latest}"
+          if [[ ! "${IMAGE_TAG}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$ ]]; then
+            echo "Invalid image_tag: ${IMAGE_TAG}" >&2
+            exit 1
+          fi
+          echo "ref=${REGISTRY}/${REGISTRY_USER}/${IMAGE_NAME}-${VARIANT}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate Buildah with GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          printf '%s\n' "${GHCR_TOKEN}" | buildah login -u "${GHCR_USER}" --password-stdin "${REGISTRY}"
 
       - name: Pull OCI image
+        env:
+          IMAGE_REF: ${{ steps.image-ref.outputs.ref }}
         run: |
-          buildah pull ${{ steps.image-ref.outputs.ref }}
+          buildah pull "${IMAGE_REF}"
           buildah images
 
       - name: Create ISO configuration
+        env:
+          IMAGE_REF: ${{ steps.image-ref.outputs.ref }}
+          VARIANT: ${{ steps.image-ref.outputs.variant }}
         run: |
           cat > iso-config.toml << EOF
           [image]
           transport = "registry"
-          name = "${{ steps.image-ref.outputs.ref }}"
+          name = "${IMAGE_REF}"
 
           [installer]
           vendor = "AuroraMax Project"
           product = "AuroraMax GameHack"
-          variant = "${{ steps.image-ref.outputs.variant }}"
+          variant = "${VARIANT}"
 
           [boot]
-          title = "AuroraMax GameHack - ${{ steps.image-ref.outputs.variant }}"
+          title = "AuroraMax GameHack - ${VARIANT}"
           timeout = 30
 
           [output]
-          filename = "auroramax-gamehack-${{ steps.image-ref.outputs.variant }}.iso"
+          filename = "auroramax-gamehack-${VARIANT}.iso"
           EOF
 
       - name: Build ISO using bootc-image-builder
+        env:
+          IMAGE_REF: ${{ steps.image-ref.outputs.ref }}
+          VARIANT: ${{ steps.image-ref.outputs.variant }}
         run: |
           echo "Building ISO with bootc-image-builder..."
-          echo "Config: $(cat iso-config.toml)"
+          cat iso-config.toml
 
           mkdir -p output
-          echo "Placeholder ISO" > output/auroramax-gamehack-${{ steps.image-ref.outputs.variant }}.iso
+          sudo podman run --rm --privileged \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            -v "$(pwd)/iso-config.toml:/config.toml:ro" \
+            -v "$(pwd)/output:/output" \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type anaconda-iso \
+            --config /config.toml \
+            "${IMAGE_REF}"
+
+          if [ -f "output/bootiso/install.iso" ] && [ ! -f "output/auroramax-gamehack-${VARIANT}.iso" ]; then
+            mv "output/bootiso/install.iso" "output/auroramax-gamehack-${VARIANT}.iso"
+          fi
+
+          if [ ! -s "output/auroramax-gamehack-${VARIANT}.iso" ]; then
+            echo "Error: bootc-image-builder did not produce output/auroramax-gamehack-${VARIANT}.iso" >&2
+            exit 1
+          fi
 
       - name: Calculate checksums
         run: |

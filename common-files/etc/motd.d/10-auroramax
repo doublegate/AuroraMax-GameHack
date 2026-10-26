@@ -36,10 +36,6 @@
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  System: %OS_PRETTY_NAME%                                                    ║
-║  Kernel: %KERNEL_VERSION%                                                    ║
-║  Uptime: %UPTIME%                                                            ║
-║                                                                              ║
 ║  Documentation: https://github.com/doublegate/auroramax-gamehack             ║
 ║  Discord:       https://discord.gg/auroramax                                 ║
 ║                                                                              ║

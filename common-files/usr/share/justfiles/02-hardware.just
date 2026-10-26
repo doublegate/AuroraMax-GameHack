@@ -265,13 +265,13 @@ set-power-profile PROFILE="balanced":
         echo "Falling back to CPU governor adjustment"
         case "{{PROFILE}}" in
             power-saver)
-                just set-cpu-governor powersave
+                /usr/bin/just --justfile /usr/share/justfiles/justfile set-cpu-governor powersave
                 ;;
             balanced)
-                just set-cpu-governor schedutil
+                /usr/bin/just --justfile /usr/share/justfiles/justfile optimize-balanced
                 ;;
             performance)
-                just set-cpu-governor performance
+                /usr/bin/just --justfile /usr/share/justfiles/justfile set-cpu-governor performance
                 ;;
         esac
     fi

@@ -7,7 +7,7 @@
 
 # Default recipe shows available commands
 default:
-    @just --list --unsorted
+    @/usr/bin/just --justfile /usr/share/justfiles/justfile --list --unsorted
 
 # Update the entire system (OS, Flatpaks, firmware)
 update:
@@ -42,7 +42,7 @@ check-updates:
     echo
     echo "=== Flatpak Updates ==="
     flatpak update --appstream
-    flatpak update --dry-run
+    flatpak remote-ls --updates
     echo
     if command -v fwupdmgr &> /dev/null; then
         echo "=== Firmware Updates ==="
@@ -83,10 +83,9 @@ cleanup:
     set -euo pipefail
     echo "🧹 Cleaning up system..."
     
-    # Clean old OS deployments
-    echo "📦 Cleaning old OS deployments..."
-    rpm-ostree cleanup --pending
-    rpm-ostree cleanup --rollback
+    # Clean cached OS package metadata without removing pending or rollback deployments
+    echo "📦 Cleaning cached OS metadata..."
+    rpm-ostree cleanup --base --repomd
     
     # Clean unused Flatpak runtimes
     echo "📱 Removing unused Flatpak runtimes..."
@@ -292,4 +291,4 @@ configure:
     echo "This will launch the configuration menu in a future update."
     echo "For now, use specific just commands to configure your system."
     echo
-    just --list --unsorted | grep -E "^(set-|toggle-|enable-|disable-)"
+    /usr/bin/just --justfile /usr/share/justfiles/justfile --list --unsorted | grep -E "^(set-|toggle-|enable-|disable-)"

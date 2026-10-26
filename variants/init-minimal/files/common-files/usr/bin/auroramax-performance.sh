@@ -1,10 +1,9 @@
+#!/bin/bash
 # =============================================================================
 # /usr/bin/auroramax-performance.sh
 #
 # Performance optimization script run at boot
 # =============================================================================
-
-#!/bin/bash
 # AuroraMax GameHack Performance Optimization Script
 
 set -euo pipefail
