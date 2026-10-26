@@ -1,0 +1,6 @@
+# AuroraMax GameHack Aggregate Justfile
+# /usr/share/justfiles/justfile
+
+import '/usr/share/justfiles/00-base.just'
+import '/usr/share/justfiles/01-performance.just'
+import '/usr/share/justfiles/02-hardware.just'

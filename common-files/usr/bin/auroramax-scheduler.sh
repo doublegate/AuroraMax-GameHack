@@ -1,6 +1,5 @@
-# /usr/bin/auroramax-scheduler.sh
-
 #!/bin/bash
+# /usr/bin/auroramax-scheduler.sh
 # AuroraMax CPU Scheduler Selection Script
 
 set -euo pipefail

@@ -8,11 +8,15 @@
 set-cpu-governor GOVERNOR="schedutil":
     #!/usr/bin/env bash
     set -euo pipefail
-    valid_governors="performance powersave schedutil ondemand conservative"
+    if [ -r /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors ]; then
+        valid_governors=$(tr -s '[:space:]' ' ' < /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | sed 's/^ //;s/ $//')
+    else
+        valid_governors="performance powersave schedutil ondemand conservative"
+    fi
 
-    if [[ ! " $valid_governors " =~ " {{GOVERNOR}} " ]]; then
-        echo "❌ Invalid governor: {{GOVERNOR}}"
-        echo "Valid options: $valid_governors"
+    if [[ " $valid_governors " != *" {{GOVERNOR}} "* ]]; then
+        echo "❌ Invalid or unsupported governor: {{GOVERNOR}}"
+        echo "Available options: $valid_governors"
         exit 1
     fi
 
@@ -86,7 +90,7 @@ toggle-thp STATE="off":
         fi
 
         # Try to disable at runtime too
-        if [ -w /sys/kernel/mm/transparent_hugepage/enabled ]; then
+        if [ -f /sys/kernel/mm/transparent_hugepage/enabled ]; then
             echo never | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
             echo never | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
             echo "✅ THP disabled at runtime"
@@ -101,7 +105,7 @@ toggle-thp STATE="off":
         fi
 
         # Try to enable at runtime
-        if [ -w /sys/kernel/mm/transparent_hugepage/enabled ]; then
+        if [ -f /sys/kernel/mm/transparent_hugepage/enabled ]; then
             echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
             echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
             echo "✅ THP enabled at runtime (madvise)"
@@ -194,7 +198,7 @@ optimize-gaming:
     echo "🎮 Applying gaming performance optimizations..."
 
     # Set CPU to performance mode
-    just set-cpu-governor performance
+    /usr/bin/just --justfile /usr/share/justfiles/justfile set-cpu-governor performance
 
     # Disable mouse acceleration (for FPS games)
     if command -v xinput &>/dev/null; then
@@ -212,7 +216,7 @@ optimize-gaming:
 
     # Set I/O scheduler to deadline for lower latency
     for device in /sys/block/*/queue/scheduler; do
-        if [ -w "$device" ]; then
+        if [ -f "$device" ]; then
             echo mq-deadline | sudo tee "$device" >/dev/null 2>&1 || true
         fi
     done
@@ -225,8 +229,16 @@ optimize-balanced:
     set -euo pipefail
     echo "⚖️  Applying balanced performance profile..."
 
-    # Set CPU to schedutil (balanced)
-    just set-cpu-governor schedutil
+    # Select schedutil when supported, otherwise fall back to powersave (e.g. active intel_pstate/amd_pstate)
+    avail_govs=""
+    if [ -r /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors ]; then
+        avail_govs=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)
+    fi
+    if [[ " $avail_govs " == *" schedutil "* ]]; then
+        /usr/bin/just --justfile /usr/share/justfiles/justfile set-cpu-governor schedutil
+    else
+        /usr/bin/just --justfile /usr/share/justfiles/justfile set-cpu-governor powersave
+    fi
 
     # Re-enable mouse acceleration
     if command -v xinput &>/dev/null; then
@@ -284,15 +296,6 @@ toggle-turbo STATE="on":
         echo "✅ AMD turbo boost {{STATE}}"
     fi
 
-    # Legacy method
-    if [ -f /sys/devices/system/cpu/cpufreq/boost ]; then
-        if [[ "{{STATE}}" == "on" ]]; then
-            echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/boost >/dev/null
-        else
-            echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost >/dev/null
-        fi
-    fi
-
 # Run system benchmark
 benchmark TYPE="cpu":
     #!/usr/bin/env bash
@@ -320,8 +323,10 @@ benchmark TYPE="cpu":
         disk)
             echo "💾 Running disk benchmark..."
             echo "Testing sequential write speed..."
-            dd if=/dev/zero of=/tmp/test.img bs=1M count=1024 oflag=dsync 2>&1 | grep -E "[0-9.]+ [MG]B/s"
-            rm -f /tmp/test.img
+            bench_file=$(mktemp "${HOME}/.auroramax-test.XXXXXX.img")
+            trap 'rm -f "$bench_file"' EXIT
+            dd_output=$(dd if=/dev/zero of="$bench_file" bs=1M count=1024 oflag=dsync 2>&1)
+            grep -E "[0-9.]+ [MG]B/s" <<< "$dd_output" || printf '%s\n' "$dd_output"
             ;;
         *)
             echo "❌ Unknown benchmark type: {{TYPE}}"

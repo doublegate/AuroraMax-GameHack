@@ -1,0 +1,53 @@
+# AuroraMax GameHack I/O Scheduler Configuration
+# Optimizes I/O schedulers based on device type for maximum performance
+#
+# Schedulers:
+# - kyber: Low-latency scheduler optimized for SSDs (NVMe/SATA)
+# - bfq: Budget Fair Queueing for HDDs (better for rotational drives)
+# - none: No scheduler for NVMe devices that handle scheduling in hardware
+#
+# This file sets optimal schedulers for different storage types to maximize
+# gaming and general system performance.
+
+# NVMe devices - Use 'none' scheduler (hardware queue)
+# NVMe drives have sophisticated hardware queuing, software schedulers add overhead
+ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="none"
+ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]p[0-9]*", ATTR{queue/scheduler}="none"
+
+# SATA/SCSI SSDs - Use 'kyber' scheduler
+# Kyber is optimized for low latency on SSDs
+ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="kyber"
+ACTION=="add|change", KERNEL=="sd[a-z][0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="kyber"
+
+# Rotational drives (HDDs) - Use 'bfq' scheduler  
+# BFQ provides better fairness and responsiveness for mechanical drives
+ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+ACTION=="add|change", KERNEL=="sd[a-z][0-9]*", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+
+# Virtual block devices (virtio) - Use 'none' scheduler
+# Virtual devices should rely on host scheduling
+ACTION=="add|change", KERNEL=="vd[a-z]", ATTR{queue/scheduler}="none"
+ACTION=="add|change", KERNEL=="vd[a-z][0-9]*", ATTR{queue/scheduler}="none"
+
+# Memory cards and USB storage - Use 'kyber' scheduler
+# These are typically flash-based and benefit from low-latency scheduling
+ACTION=="add|change", KERNEL=="mmcblk[0-9]", ATTR{queue/scheduler}="kyber"
+ACTION=="add|change", KERNEL=="mmcblk[0-9]p[0-9]*", ATTR{queue/scheduler}="kyber"
+
+# Set optimal queue parameters for SSDs
+# These settings reduce latency and improve responsiveness
+ACTION=="add|change", KERNEL=="sd[a-z]|nvme[0-9]n[0-9]", ATTR{queue/rotational}=="0", ATTR{queue/nr_requests}="256"
+ACTION=="add|change", KERNEL=="sd[a-z]|nvme[0-9]n[0-9]", ATTR{queue/rotational}=="0", ATTR{queue/read_ahead_kb}="256"
+
+# Set optimal queue parameters for HDDs
+# Larger read-ahead helps sequential performance on mechanical drives
+ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/nr_requests}="128"
+ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/read_ahead_kb}="1024"
+
+# Enable SATA ALPM (Aggressive Link Power Management) for power savings
+# This can be adjusted based on performance vs power requirements
+ACTION=="add|change", SUBSYSTEM=="scsi_host", KERNEL=="host*", ATTR{link_power_management_policy}="med_power_with_dipm"
+
+# Log scheduler changes (useful for debugging)
+# Uncomment the following line to enable logging to system journal
+#ACTION=="add|change", KERNEL=="sd[a-z]|nvme[0-9]n[0-9]|vd[a-z]|mmcblk[0-9]", RUN+="/usr/bin/logger -t io-scheduler 'Set scheduler for %k to %s{queue/scheduler}'"

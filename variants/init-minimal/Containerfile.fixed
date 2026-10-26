@@ -1,0 +1,39 @@
+ARG BASE_IMAGE="ghcr.io/ublue-os/kinoite-main@sha256:83edff5bbaf3145b4f05652eff9b2474e8c942e27316c464b0c126f0100e9d55"
+FROM "${BASE_IMAGE}" AS auroramax-gamehack-init-minimal
+
+# This stage is responsible for holding onto
+# your config without copying it directly into
+# the final image
+FROM scratch AS stage-files
+COPY ./files /files
+
+# Bins to install
+# These are basic tools that are added to all images.
+# Generally used for the build process. We use a multi
+# stage process so that adding the bins into the image
+# can be added to the ostree commits.
+FROM scratch AS stage-bins
+COPY --from=ghcr.io/sigstore/cosign/cosign:v3.1.1 \
+  /ko-app/cosign /bins/cosign
+COPY --from=ghcr.io/blue-build/cli:latest-installer \
+  /out/bluebuild /bins/bluebuild
+# Keys for pre-verified images
+# Used to copy the keys into the final image
+# and perform an ostree commit.
+#
+# Currently only holds the current image's
+# public key.
+# Main image
+FROM auroramax-gamehack-init-minimal
+ARG TARGETARCH
+ARG RECIPE=recipe.yml
+ARG IMAGE_REGISTRY=localhost
+ARG BB_BUILD_FEATURES=""
+ARG CONFIG_DIRECTORY="/tmp/files"
+ARG MODULE_DIRECTORY="/tmp/modules"
+ARG IMAGE_NAME="auroramax-gamehack-init-minimal"
+ARG BASE_IMAGE="ghcr.io/ublue-os/kinoite-main"
+ARG FORCE_COLOR=1
+ARG CLICOLOR_FORCE=1
+ARG RUST_LOG_STYLE=always
+# Key RUN

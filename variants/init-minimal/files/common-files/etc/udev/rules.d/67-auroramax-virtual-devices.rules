@@ -1,0 +1,20 @@
+# =============================================================================
+# 67-auroramax-virtual-devices.rules
+# /etc/udev/rules.d/67-auroramax-virtual-devices.rules
+#
+# Virtual device configuration for streaming, development, etc.
+# =============================================================================
+
+# Virtual video devices (v4l2loopback)
+KERNEL=="video[0-9]*", SUBSYSTEM=="video4linux", ATTR{name}=="v4l2loopback*", MODE="0660", GROUP="video", TAG+="uaccess"
+
+# Virtual audio devices
+KERNEL=="vhci_hcd*", MODE="0660", GROUP="audio"
+
+# KVM/QEMU devices (restricted to kvm group members)
+KERNEL=="kvm", MODE="0660", GROUP="kvm"
+KERNEL=="vhost-net", MODE="0660", GROUP="kvm"
+KERNEL=="vhost-vsock", MODE="0660", GROUP="kvm"
+
+# TUN/TAP devices for VPN and virtualization
+KERNEL=="tun", MODE="0660", GROUP="netdev"

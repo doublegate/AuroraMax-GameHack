@@ -1,0 +1,18 @@
+# =============================================================================
+# 65-auroramax-cpu-performance.rules
+# /etc/udev/rules.d/65-auroramax-cpu-performance.rules
+#
+# CPU and system performance settings
+# =============================================================================
+
+# Intel CPU - ensure pstate driver has correct permissions
+ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", TEST=="cpufreq/scaling_governor", ATTR{cpufreq/scaling_governor}="schedutil"
+
+# AMD CPU - set initial governor
+ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", TEST=="cpufreq/scaling_governor", ATTR{cpufreq/scaling_governor}="schedutil"
+
+# Allow users to change CPU frequency governor
+KERNEL=="cpu[0-9]*", SUBSYSTEM=="cpu", ACTION=="add", TEST=="cpufreq/scaling_governor", MODE="0644"
+
+# MSR access for performance monitoring (needed by some tools)
+KERNEL=="msr[0-9]*", MODE="0660", GROUP="wheel"

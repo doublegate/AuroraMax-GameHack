@@ -73,12 +73,13 @@ alias ip='ip -color=auto'
 # ============================================================================
 
 # AuroraMax system management
-alias update='just update'
-alias rollback='just rollback'
-alias sysinfo='just system-info'
-alias cleanup='just cleanup'
-alias check-health='just check-health'
-alias deployments='just deployments'
+alias ujust='/usr/bin/just --justfile /usr/share/justfiles/justfile'
+alias update='/usr/bin/just --justfile /usr/share/justfiles/justfile update'
+alias rollback='/usr/bin/just --justfile /usr/share/justfiles/justfile rollback'
+alias sysinfo='/usr/bin/just --justfile /usr/share/justfiles/justfile system-info'
+alias cleanup='/usr/bin/just --justfile /usr/share/justfiles/justfile cleanup'
+alias check-health='/usr/bin/just --justfile /usr/share/justfiles/justfile check-health'
+alias deployments='/usr/bin/just --justfile /usr/share/justfiles/justfile deployments'
 
 # Power management
 alias reboot='systemctl reboot'
@@ -167,11 +168,9 @@ alias code='codium'
 alias subl='sublime_text'
 alias nano='nano -w'
 
-# File searching
-alias fd='find . -type d -iname'
-alias ff='find . -type f -iname'
-alias fgrep='grep -F'
-alias rgrep='grep -r'
+# File searching (ff and fd helper functions are defined in ~/.bashrc)
+alias fgrep='grep -F --color=auto'
+alias rgrep='grep -r --color=auto'
 
 # ============================================================================
 # Container & Virtualization
@@ -269,7 +268,7 @@ alias npmbuild='npm run build'
 alias cb='cargo build'
 alias cr='cargo run'
 alias ct='cargo test'
-alias cc='cargo check'
+alias ccheck='cargo check'
 alias cclean='cargo clean'
 alias cupdate='cargo update'
 
@@ -285,10 +284,10 @@ alias gomod='go mod'
 # ============================================================================
 
 # Performance profiles
-alias perf-gaming='just optimize-gaming'
-alias perf-balanced='just optimize-balanced'
-alias perf-info='just show-performance-params'
-alias gpu-info='just gpu-info'
+alias perf-gaming='/usr/bin/just --justfile /usr/share/justfiles/justfile optimize-gaming'
+alias perf-balanced='/usr/bin/just --justfile /usr/share/justfiles/justfile optimize-balanced'
+alias perf-info='/usr/bin/just --justfile /usr/share/justfiles/justfile show-performance-params'
+alias gpu-info='/usr/bin/just --justfile /usr/share/justfiles/justfile gpu-info'
 
 # Gaming applications
 alias steam='steam -silent'
@@ -298,7 +297,7 @@ alias bottles='flatpak run com.usebottles.bottles'
 alias retroarch='flatpak run org.libretro.RetroArch'
 
 # Shader and cache management
-alias shader-clear='just clear-shader-cache'
+alias shader-clear='/usr/bin/just --justfile /usr/share/justfiles/justfile clear-shader-cache'
 alias dxvk-clear='find ~/Games ~/.wine ~/.local/share/lutris -name "*.dxvk-cache" -delete'
 alias vkd3d-clear='find ~/Games ~/.wine ~/.local/share/lutris -name "*.vkd3d-cache" -delete'
 
@@ -308,7 +307,7 @@ alias mangohud-off='unset MANGOHUD'
 alias mangohud-config='${EDITOR:-vim} ~/.config/MangoHud/MangoHud.conf'
 
 # Proton management
-alias proton-ge='just install-proton-ge'
+alias proton-ge='/usr/bin/just --justfile /usr/share/justfiles/justfile install-proton-ge'
 alias proton-list='ls -la ~/.steam/root/compatibilitytools.d/'
 alias proton-tricks='protontricks --gui'
 
@@ -365,7 +364,7 @@ alias gpuinfo='lspci -k | grep -A 3 -E "(VGA|3D)"'
 alias usbinfo='lsusb -t'
 alias pciinfo='lspci -vnn'
 alias sensors='sensors | grep -E "^(Core|temp|fan)"'
-alias dmesg='dmesg --color=always'
+alias dmesg='dmesg --color=auto'
 
 # System info
 alias osinfo='cat /etc/os-release'
@@ -435,11 +434,9 @@ alias calc='bc -l'
 alias sha='shasum -a 256'
 alias md5='md5sum'
 
-# External services
-alias weather='curl wttr.in'
+# External services (weather and cheat helper functions are defined in ~/.bashrc)
 alias weatherfull='curl v2.wttr.in'
-alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
-alias cheat='curl cheat.sh/'
+alias speedtest='speedtest-cli'
 alias dict='curl dict.org/d:'
 alias ipinfo='curl ipinfo.io'
 alias rates='curl rate.sx'
@@ -448,8 +445,6 @@ alias rates='curl rate.sx'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias beep='echo -e "\a"'
 alias cls='clear'
-alias please='sudo $(history -p !!)'
-alias fucking='sudo'
 
 # ============================================================================
 # Quick Navigation
@@ -485,8 +480,8 @@ alias vimrc='${EDITOR:-vim} ~/.vimrc'
 alias sshconfig='${EDITOR:-vim} ~/.ssh/config'
 alias hosts='sudo ${EDITOR:-vim} /etc/hosts'
 alias fstab='sudo ${EDITOR:-vim} /etc/fstab'
-alias grubconfig='sudo ${EDITOR:-vim} /etc/default/grub'
-alias sources='sudo ${EDITOR:-vim} /etc/apt/sources.list'
+alias grubconfig='sudo ${EDITOR:-vim} /etc/default/grub.d/10-auroramax.cfg'
+alias repos='sudo ${EDITOR:-vim} /etc/yum.repos.d/'
 
 # ============================================================================
 # Conditional Aliases
@@ -504,16 +499,6 @@ fi
 if command -v bat &>/dev/null; then
     alias cat='bat --style=plain'
     alias catp='bat'
-fi
-
-# Only if ripgrep is installed
-if command -v rg &>/dev/null; then
-    alias grep='rg'
-fi
-
-# Only if fd is installed
-if command -v fd &>/dev/null; then
-    alias find='fd'
 fi
 
 # End of AuroraMax GameHack .bash_aliases

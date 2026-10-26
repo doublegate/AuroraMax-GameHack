@@ -1,0 +1,25 @@
+# =============================================================================
+# 63-auroramax-network-performance.rules
+# /etc/udev/rules.d/63-auroramax-network-performance.rules
+#
+# Network interface optimization for low latency and high throughput
+# =============================================================================
+
+# Increase network interface transmit queue length for gaming
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{tx_queue_len}="5000"
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlan*", ATTR{tx_queue_len}="2000"
+
+# Intel network adapters - optimize for low latency
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", DRIVERS=="e1000e", ATTR{device/power/control}="on"
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", DRIVERS=="igb", ATTR{device/power/control}="on"
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", DRIVERS=="ixgbe", ATTR{device/power/control}="on"
+
+# Realtek network adapters
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", DRIVERS=="r8169", ATTR{device/power/control}="on"
+
+# Wi-Fi adapters - disable power saving for lower latency
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlan*", RUN+="/usr/bin/iw dev %k set power_save off"
+
+# Set optimal interrupt coalescing for gaming (microseconds)
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/rx_usecs}="0"
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth*", ATTR{device/tx_usecs}="0"

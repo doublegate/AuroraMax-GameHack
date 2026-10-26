@@ -1,0 +1,12 @@
+# =============================================================================
+# 70-auroramax-memory-performance.rules
+# /etc/udev/rules.d/70-auroramax-memory-performance.rules
+#
+# Memory and hugepage configuration
+# =============================================================================
+
+# Allow users to lock memory for gaming/audio applications
+KERNEL=="msr[0-9]*", MODE="0660", GROUP="wheel"
+
+# Hugepage permissions
+KERNEL=="hugepages", GROUP="wheel", MODE="0660"

@@ -3,9 +3,9 @@
 ## Project Overview
 AuroraMax Linux - Gaming / Hacking Distro – Universal Blue Atomic Image Specification AuroraMax Gaming is a next-generation Universal Blue atomic image built on Fedora Kinoite (KDE) to deliver a powerful all-in-one gaming workstation. It combines a developer-centric OS, comprehensive gaming tools, AI/ML capabilities, penetration testing suites, cloud-native utilities, and aggressive performance optimizations into a single immutable image.
 
-## AuroraMax GameHack: Project Instructions for Claude ... 📝
+## AuroraMax GameHack: working instructions
 
-Hello! Your task is to assist in the generation of scripts, configuration files, and documentation for the **AuroraMax GameHack** Linux distribution project. You will reference a series of previously generated specification documents. Your goal is to translate these specifications into tangible artifacts.
+Generate scripts, configuration files and documentation for the **AuroraMax GameHack** Linux distribution, translating the design below into build artifacts. The specification identifiers named in this file (`auroramax_project_overview`, `auroramax_init_variants`, `auroramax_package_lists_v1`, `auroramax_system_config_v1`, `auroramax_build_github`, `auroramax_synthesis_llm_qa`, `auroramax_benchmarking_testing_v1`) were earlier chat documents and are not files in this repository. What exists is `README.md`, `ref_info/`, `to-dos/`, `scripts/`, `templates/`, `common-files/` and `variants/init-minimal/`; use those, and ask when a specification you need is missing.
 
 ## Key Information
 - Based on Universal Blue (which itself is based on Fedora Atomic/Silverblue)
@@ -144,8 +144,6 @@ To create the necessary build scripts (`Containerfile`, `build.sh`), configurati
 * **Clarity:** Generated file content should be clear, well-formatted, and directly reflect the specifications.
 * **Placeholder Awareness:** The GitHub organization (`your-org`) and specific tags (`:latest`, `:42`) are placeholders. Use them as provided, or be prepared to parameterize them if instructed.
 
-By following these instructions and referencing the provided documents carefully, you will be instrumental in laying the groundwork for AuroraMax GameHack.
-
 ## AuroraMax GameHack Distribution: Project Summary & Implementation Strategy
 
 ## Project Synopsis
@@ -191,6 +189,7 @@ Merge SemiFinal with the best LLM recommendations into the final Release Candida
 ## Implementation Strategy
 
 ### 1. **Repository Structure Setup**
+Planned layout; only `variants/init-minimal/` exists so far.
 ```
 auroramax-gamehack/
 ├── variants/
@@ -292,3 +291,53 @@ Implement convenience commands for:
    - Troubleshooting guides
 
 The project represents a sophisticated approach to creating a versatile Linux distribution that serves multiple advanced user communities while maintaining the stability and security benefits of an immutable OS architecture.
+
+## Current Project Status (2025-05-30)
+
+### Build Status
+- **Init-Minimal Variant**: ✅ Successfully built (9.21 GB image)
+  - Image ID: `d4ccce402f91`
+  - Built using custom `scripts/build-direct.sh` script
+  - Repository: Migrated to newer bazzite-org/kernel-bazzite paths
+
+### Active Development
+- **Current Branch**: `fix/init-minimal-build-workarounds`
+- **Build Method**: Direct build script (`scripts/build-direct.sh`) with BlueBuild workarounds
+- **GitHub Actions**: Configured and ready for testing on feature branch
+
+### Known Issues & Workarounds
+All documented in `to-dos/init-minimal-post-build-fixes.md`:
+1. **Image Signing**: Temporarily disabled (cosign signing needs re-enabling)
+2. **COPR Repositories**: Bazzite kernel repos need re-enabling
+3. **Package Conflicts**: Mesa drivers and some utilities removed temporarily
+4. **Systemd Services**: Custom AuroraMax services disabled pending fixes
+
+### Project Structure
+```
+auroramax-gamehack/
+├── common-files/        # Shared configuration files
+├── variants/           # Variant-specific builds
+│   └── init-minimal/   # First variant (built successfully)
+├── scripts/            # Build and helper scripts
+├── ref_info/           # Local reference documentation
+├── to-dos/             # Task tracking and issue logs
+└── templates/          # Base templates for variants
+```
+
+### Build Commands
+```bash
+# Local build using custom script
+./scripts/build-direct.sh
+
+# BlueBuild (when workarounds are resolved)
+bluebuild build --push variants/init-minimal/recipe.yml
+
+# GitHub Actions (on push to feature branch)
+git push origin fix/init-minimal-build-workarounds
+```
+
+### Key Files for Reference
+- `scripts/build-direct.sh` - Working build script with all workarounds
+- `to-dos/init-minimal-post-build-fixes.md` - Priority-sorted fix list
+- `ref_info/bluebuild-workarounds-summary.md` - Complete workaround documentation
+- `variants/init-minimal/recipe.yml` - BlueBuild recipe configuration

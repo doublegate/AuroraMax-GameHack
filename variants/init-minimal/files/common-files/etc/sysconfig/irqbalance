@@ -1,0 +1,11 @@
+# =============================================================================
+# /etc/sysconfig/irqbalance
+#
+# IRQ balancing configuration
+# =============================================================================
+
+# Leave IRQBALANCE_BANNED_CPUS unset by default so CPU 0 is not inadvertently banned
+# (bitmask value 1 bans CPU 0; override per-host if isolating specific cores)
+
+# Don't balance IRQs too aggressively
+IRQBALANCE_ARGS="--hintpolicy=ignore"

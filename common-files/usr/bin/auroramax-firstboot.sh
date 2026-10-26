@@ -84,12 +84,9 @@ fc-cache -f
 log "Updating desktop database..."
 update-desktop-database
 
-# Configure default ZRAM if not already set
-if [ ! -f /etc/systemd/zram-generator.conf ]; then
-    log "ZRAM configuration already exists"
-else
-    log "Configuring ZRAM..."
-    systemctl enable --now systemd-zram-setup@zram0.service
+# ZRAM is managed automatically via systemd-zram-generator
+if [ -f /etc/systemd/zram-generator.conf ]; then
+    log "ZRAM generator configuration present (/etc/systemd/zram-generator.conf)"
 fi
 
 # Set up MangoHud default config if not exists

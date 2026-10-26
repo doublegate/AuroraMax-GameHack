@@ -35,7 +35,6 @@ shopt -s cmdhist                  # Save multi-line commands as single entry
 # Enhanced shell behavior
 shopt -s checkwinsize             # Update LINES and COLUMNS after each command
 shopt -s globstar                 # Enable ** for recursive globbing
-shopt -s dotglob                  # Include hidden files in globbing
 shopt -s extglob                  # Extended pattern matching
 shopt -s nocaseglob              # Case-insensitive globbing
 shopt -s cdspell                 # Correct minor cd spelling errors
@@ -56,8 +55,10 @@ fi
 
 # AuroraMax specific paths
 export AURORAMAX_HOME="/opt/auroramax"
-export AURORAMAX_VERSION=$(cat /etc/auroramax-release 2>/dev/null | grep VERSION | cut -d= -f2 || echo "unknown")
-export AURORAMAX_VARIANT=$(cat /etc/auroramax-release 2>/dev/null | grep VARIANT | cut -d= -f2 || echo "base")
+AURORAMAX_VERSION=$(grep -E '^VERSION=' /etc/auroramax-release 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"')
+export AURORAMAX_VERSION="${AURORAMAX_VERSION:-unknown}"
+AURORAMAX_VARIANT=$(grep -E '^VARIANT=' /etc/auroramax-release 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"')
+export AURORAMAX_VARIANT="${AURORAMAX_VARIANT:-base}"
 
 # Enhanced PATH with AuroraMax directories
 export PATH="$HOME/.local/bin:$AURORAMAX_HOME/bin:$PATH"
@@ -157,18 +158,19 @@ __git_prompt() {
         # Get branch name
         branch=$(git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
         
-        # Get status indicators
-        local git_status=$(git status --porcelain 2>/dev/null)
+        # Get status indicators across all porcelain lines
+        local git_status
+        git_status=$(git status --porcelain 2>/dev/null)
         if [[ -n $git_status ]]; then
-            if [[ $git_status =~ ^[MADRC] ]]; then
-                status+="+"  # Staged changes
-            fi
-            if [[ $git_status =~ ^.[MD] ]]; then
-                status+="!"  # Unstaged changes
-            fi
-            if [[ $git_status =~ ^\?\? ]]; then
-                status+="?"  # Untracked files
-            fi
+            local has_staged=0 has_unstaged=0 has_untracked=0 line
+            while IFS= read -r line; do
+                [[ ${line:0:1} =~ [MADRC] ]] && has_staged=1
+                [[ ${line:1:1} =~ [MD] ]] && has_unstaged=1
+                [[ ${line:0:2} == "??" ]] && has_untracked=1
+            done <<< "$git_status"
+            (( has_staged )) && status+="+"
+            (( has_unstaged )) && status+="!"
+            (( has_untracked )) && status+="?"
         fi
         
         # Check for ahead/behind
@@ -431,8 +433,12 @@ bench() {
             ;;
         disk)
             echo "Disk write benchmark..."
-            dd if=/dev/zero of=/tmp/benchmark bs=1M count=1024 oflag=dsync 2>&1 | grep -E "[0-9.]+ [MG]B/s"
-            rm -f /tmp/benchmark
+            local bench_file
+            bench_file=$(mktemp "${HOME}/.auroramax-bench.XXXXXX") || return 1
+            local dd_out
+            dd_out=$(dd if=/dev/zero of="$bench_file" bs=1M count=1024 oflag=dsync 2>&1)
+            rm -f "$bench_file"
+            grep -E "[0-9.]+ [MG]B/s" <<< "$dd_out" || printf '%s\n' "$dd_out"
             ;;
         *)
             echo "Usage: bench [cpu|mem|disk]"
@@ -514,9 +520,16 @@ complete -cf man
 complete -cf which
 complete -cf type
 
-# Add completions for AuroraMax commands
+# Add completions and system justfile fallback for AuroraMax commands
 if command -v just &>/dev/null; then
-    eval "$(just --completions bash)"
+    just() {
+        if [[ ! -f justfile && ! -f Justfile && ! -f .justfile ]] && [[ " $* " != *" --justfile "* && " $* " != *" -f "* ]]; then
+            command just --justfile /usr/share/justfiles/justfile "$@"
+        else
+            command just "$@"
+        fi
+    }
+    eval "$(command just --completions bash)"
 fi
 
 # Git completion
@@ -586,17 +599,22 @@ if [ -z "$AURORAMAX_WELCOMED" ]; then
     
     # Welcome banner
     if [ -f /etc/auroramax-release ]; then
-        echo
-        echo -e "${AURORAMAX_PRIMARY}╔══════════════════════════════════════════════════════╗${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║        Welcome to AuroraMax GameHack!                ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║                                                      ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║  Variant: ${AURORAMAX_VARIANT:-base}                                       ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║  Kernel:  $(uname -r)                    ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║                                                      ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║  Type 'just' to see available commands              ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}║  Type 'help-auroramax' for quick reference          ║${COLOR_RESET}"
-        echo -e "${AURORAMAX_PRIMARY}╚══════════════════════════════════════════════════════╝${COLOR_RESET}"
-        echo
+        __banner_primary="${AURORAMAX_PRIMARY//\\[}"
+        __banner_primary="${__banner_primary//\\]}"
+        __banner_reset="${COLOR_RESET//\\[}"
+        __banner_reset="${__banner_reset//\\]}"
+        printf '\n'
+        printf '%b╔══════════════════════════════════════════════════════╗%b\n' "$__banner_primary" "$__banner_reset"
+        printf '%b║        Welcome to AuroraMax GameHack!                ║%b\n' "$__banner_primary" "$__banner_reset"
+        printf '%b║                                                      ║%b\n' "$__banner_primary" "$__banner_reset"
+        printf '%b║  Variant: %-42.42s ║%b\n' "$__banner_primary" "${AURORAMAX_VARIANT:-base}" "$__banner_reset"
+        printf '%b║  Kernel:  %-42.42s ║%b\n' "$__banner_primary" "$(uname -r)" "$__banner_reset"
+        printf '%b║                                                      ║%b\n' "$__banner_primary" "$__banner_reset"
+        printf '%b║  Type '\''just'\'' to see available commands              ║%b\n' "$__banner_primary" "$__banner_reset"
+        printf '%b║  Type '\''help-auroramax'\'' for quick reference          ║%b\n' "$__banner_primary" "$__banner_reset"
+        printf '%b╚══════════════════════════════════════════════════════╝%b\n' "$__banner_primary" "$__banner_reset"
+        printf '\n'
+        unset __banner_primary __banner_reset
     fi
     
     # Quick system status

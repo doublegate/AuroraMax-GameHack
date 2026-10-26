@@ -26,3 +26,6 @@ cosign.key
 # OS files
 .DS_Store
 Thumbs.db
+
+# BlueBuild temporary scripts
+.bluebuild-scripts_*
